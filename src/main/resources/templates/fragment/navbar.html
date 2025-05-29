@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>電商平台 - 導覽列</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body>
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark"
+         style="position: fixed; top: 0; left: 0; width: 100%; background-color: white;
+          z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/index}">電商平台</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <form th:action="@{/product/controller}" method="get">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <input name="keyword" class="form-control me-2" type="search" placeholder="搜尋商品"
+                                   aria-label="Search">
+                        </li>
+                        <li class="nav-item">&emsp;</li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-success" type="submit">搜尋</button>
+                        </li>
+                        <li class="nav-item">&emsp;</li>
+                    </ul>
+                </form>
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" th:href="@{/index}">首頁</a>
+                    </li>
+                    <li class="nav-item" th:if="${isLogin == false}">
+                        <a class="nav-link" th:href="@{/secure/login}">登入</a>
+                    </li>
+                    <li class="nav-item" th:if="${isLogin == false}">
+                        <a class="nav-link" th:href="@{/secure/register}">註冊</a>
+                    </li>
+                    <li class="nav-item" th:if="${isLogin == true}">
+                        <span class="nav-link disabled" th:text="${account}"></span>
+                    </li>
+                    <li class="nav-item" th:if="${role == 'ADMIN'}">
+                        <a class="nav-link" th:href="@{/product/add}">上架商品</a>
+                    </li>
+                    <li class="nav-item" th:if="${role == 'ADMIN'}">
+                        <a class="nav-link" th:href="@{/product/manage}">管理商品</a>
+                    </li>
+                    <li class="nav-item" th:if="${isLogin == true}">
+                        <a class="nav-link" th:href="@{/logout}">登出</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 這個空 div 用來補足 navbar 高度 -->
+    <div style="height: 30px;"></div>
+</div>
+</body>
+</html>
