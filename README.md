@@ -8,7 +8,7 @@
 4. 商品刪除（管理者）
 
 技術
-後端：Java、Spring Boot
-前端：Thymeleaf 模板引擎、Bootstrap
-資料庫：Microsoft SQL Server
-其他：Spring Security（處理登入驗證）
+1. 後端：Java、Spring Boot
+2. 前端：Thymeleaf 模板引擎、Bootstrap
+3. 資料庫：Microsoft SQL Server
+4. 其他：Spring Security（處理登入驗證）
