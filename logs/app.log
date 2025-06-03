@@ -3262,6 +3262,7 @@ java.lang.IllegalArgumentException: Page index must not be less than zero
 2025-06-03 21:32:00 WARN org.thymeleaf.standard.processor.AbstractStandardFragmentInsertionTagProcessor - [THYMELEAF][http-nio-8080-exec-5][/index] Deprecated unwrapped fragment expression "/fragment/navbar :: navbar" found in template /index, line 10, col 6. Please use the complete syntax of fragment expressions instead ("~{/fragment/navbar :: navbar}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf. 
 2025-06-03 21:32:01 WARN org.thymeleaf.standard.processor.AbstractStandardFragmentInsertionTagProcessor - [THYMELEAF][http-nio-8080-exec-6][/index] Deprecated unwrapped fragment expression "/fragment/navbar :: navbar" found in template /index, line 10, col 6. Please use the complete syntax of fragment expressions instead ("~{/fragment/navbar :: navbar}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf. 
 2025-06-03 21:32:02 WARN org.thymeleaf.standard.processor.AbstractStandardFragmentInsertionTagProcessor - [THYMELEAF][http-nio-8080-exec-4][/index] Deprecated unwrapped fragment expression "/fragment/navbar :: navbar" found in template /index, line 10, col 6. Please use the complete syntax of fragment expressions instead ("~{/fragment/navbar :: navbar}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf. 
+<<<<<<< HEAD
 2025-06-03 21:56:40 INFO org.springframework.boot.web.embedded.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete 
 2025-06-03 21:56:40 INFO org.springframework.boot.web.embedded.tomcat.GracefulShutdown - Graceful shutdown complete 
 2025-06-03 21:56:40 INFO org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default' 
@@ -7694,3 +7695,5 @@ com.danny.shoppingplatform.controller.product.ProductController#deleteProduct(In
 	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-6.2.6.jar:6.2.6]
 	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509) ~[spring-beans-6.2.6.jar:6.2.6]
 	... 22 more
+=======
+>>>>>>> c028319 (version 2.0)

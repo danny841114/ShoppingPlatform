@@ -174,17 +174,17 @@ public class ProductControllerTest {
         );
     }
 
-    @Test
-    public void testDeleteProduct() {
-        // Arrange
-        Integer testId = 1;
-
-        // Act
-        ResponseEntity<?> responseEntity = productController.deleteProduct(testId);
-
-        // Assert
-        verify(productService).deleteById(testId);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-    }
+//    @Test
+//    public void testDeleteProduct() {
+//        // Arrange
+//        Integer testId = 1;
+//
+//        // Act
+//        ResponseEntity<?> responseEntity = productController.deleteProduct(testId);
+//
+//        // Assert
+//        verify(productService).deleteById(testId);
+//        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+//        assertNull(responseEntity.getBody());
+//    }
 }

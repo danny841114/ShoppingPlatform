@@ -62,11 +62,4 @@ public class RouteController {
         model.addAttribute("product", product);
         return "/product/modify_product";
     }
-
-    @GetMapping(value = "/product/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
-    @ResponseBody
-    public byte[] getProductImage(@PathVariable Integer id) {
-        Product product = productService.findById(id);
-        return product.getPhoto();
-    }
 }
