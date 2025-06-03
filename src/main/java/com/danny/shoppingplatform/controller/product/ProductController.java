@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Controller
 public class ProductController {
@@ -104,11 +107,5 @@ public class ProductController {
 
         productService.modifyProduct(id, name, description, price, quantity, photoForUpload);
         return "redirect:/product/manage";
-    }
-
-    @DeleteMapping("/api/product/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
-        productService.deleteById(id);
-        return ResponseEntity.ok().build();
     }
 }
