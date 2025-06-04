@@ -35,26 +35,30 @@
 
     <!-- 分頁按鈕 -->
     <div class="mt-2">
-        <th:block th:if="${page > 0}">
+        <th:block th:if="${page > 0}" >
             <a th:if="${keyword != null}"
-               th:href="@{'/product/controller'(size=${size}, page=${page - 1}, keyword=${keyword})}">
+               th:href="@{'/product/controller'(size=${size}, page=${page - 1}, keyword=${keyword})}"
+               class="btn btn-primary">
                 上一頁
             </a>
             <a th:if="${keyword == null}"
-               th:href="@{'/product/controller'(size=${size}, page=${page - 1})}">
+               th:href="@{'/product/controller'(size=${size}, page=${page - 1})}"
+               class="btn btn-primary">
                 上一頁
             </a>
         </th:block>
 
-        <span>第 <span th:text="${page + 1}"></span> 頁</span>
+        <span>&emsp;第 <span th:text="${page + 1}"></span> 頁&emsp;</span>
 
         <th:block th:if="${page < totalPages - 1}">
             <a th:if="${keyword != null}"
-               th:href="@{'/product/controller'(size=${size}, page=${page + 1}, keyword=${keyword})}">
+               th:href="@{'/product/controller'(size=${size}, page=${page + 1}, keyword=${keyword})}"
+               class="btn btn-primary">
                 下一頁
             </a>
             <a th:if="${keyword == null}"
-               th:href="@{'/product/controller'(size=${size}, page=${page + 1})}">
+               th:href="@{'/product/controller'(size=${size}, page=${page + 1})}"
+               class="btn btn-primary">
                 下一頁
             </a>
         </th:block>

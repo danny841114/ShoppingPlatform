@@ -48,6 +48,12 @@ public class ProductRestController {
         return ResponseEntity.ok(productList);
     }
 
+    @GetMapping("/api/product/{id}")
+    public ResponseEntity<?> getProduct(@PathVariable Integer id) {
+        Product product = productService.findById(id);
+        return ResponseEntity.ok(product);
+    }
+
     @GetMapping("/api/product/vendor")
     public ResponseEntity<?> getVendorProducts() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -123,7 +129,7 @@ public class ProductRestController {
         byte[] photoForUpload = null;
 
         // 即使沒傳圖片，也會回傳 byte[0]，會覆蓋null，所以要先判斷 isEmpty()
-        if (!photo.isEmpty()) {
+        if (photo != null && !photo.isEmpty()) {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
