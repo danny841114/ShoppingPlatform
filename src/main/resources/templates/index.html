@@ -23,9 +23,9 @@
         <form method="get" th:action="@{/product/controller}">
             <label for="sizeSelect">每頁顯示</label>
             <select id="sizeSelect" name="size" onchange="this.form.submit()">
-                <option value="5" th:selected="${size == 5}">5</option>
-                <option value="10" th:selected="${size == 10}">10</option>
-                <option value="20" th:selected="${size == 20}">20</option>
+                <option value="4" th:selected="${size == 4}">4</option>
+                <option value="8" th:selected="${size == 8}">8</option>
+                <option value="12" th:selected="${size == 12}">12</option>
             </select>
             <span>個商品</span>
             <input type="hidden" name="page" th:value="${page}"/>
@@ -35,7 +35,7 @@
 
     <!-- 分頁按鈕 -->
     <div class="mt-2">
-        <th:block th:if="${page > 0}" >
+        <th:block th:if="${page > 0}">
             <a th:if="${keyword != null}"
                th:href="@{'/product/controller'(size=${size}, page=${page - 1}, keyword=${keyword})}"
                class="btn btn-primary">
@@ -68,12 +68,12 @@
     <div class="row mt-3">
         <div class="col-md-3 mb-4" th:each="product : ${productList}">
             <div class="card" style="width: 18rem;">
-                <img th:src="@{/product/{id}/photo(id=${product.id})}" class="card-img-top p-4" alt="Product Image">
+                <img th:src="@{/product/{id}/photo(id=${product.id})}" class="card-img-top p-4"
+                     alt="Product Image" onerror="this.onerror=null; this.src='/images/no_image_available.jpg';">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}">商品名稱</h5>
                     <p class="card-text" th:text="${product.description}">商品描述</p>
                     <p class="card-text" th:text="'賣家：'+${product.member.account}">賣家帳號</p>
-                    <a class="btn btn-primary">查看詳情</a>
                 </div>
             </div>
         </div>

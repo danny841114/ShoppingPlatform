@@ -33,7 +33,8 @@
             <td class="align-middle text-center" th:text="${product.quantity}">數量</td>
             <td class="align-middle text-center" th:text="${product.date}">上架日期</td>
             <td class="align-middle text-center">
-                <img th:src="@{/product/{id}/photo(id=${product.id})}" alt="商品圖片" height="80">
+                <img th:src="@{/product/{id}/photo(id=${product.id})}" alt="商品圖片"
+                     height="80" onerror="this.onerror=null; this.src='/images/no_image_available.jpg';">
             </td>
             <td class="align-middle text-center">
                 <a th:href="@{/product/modify(id=${product.id})}" class="btn btn-success">修改</a>
