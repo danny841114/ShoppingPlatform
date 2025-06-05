@@ -50,10 +50,7 @@ public class LoginController {
         Member member = memberService.login(account, password);
 
         if (member == null) {
-//            Map<String, String> error = new HashMap<>();
-//            error.put("error", "帳號或密碼錯誤");
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "帳號密碼錯誤");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "帳號或密碼錯誤");
         }
 
         // 產生 JWT（可把 account、role 等資訊塞進去）

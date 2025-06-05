@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MemberDao extends JpaRepository<Member, Integer> {
-    public Member findByAccount(String account);
+    Member findByAccount(String account);
 }

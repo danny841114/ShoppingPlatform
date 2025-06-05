@@ -5,13 +5,14 @@
     <title>電商平台 - 上架商品</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div th:replace="/fragment/navbar :: navbar"></div>
 
 <div class="container mt-5">
     <h3>上架商品</h3>
-    <form method="post" th:action="@{/product/controller}" enctype="multipart/form-data">
+    <form id="form" method="post" th:action="@{/product/controller}" enctype="multipart/form-data">
         <!-- 商品名稱 -->
         <div class="input-group mb-3">
             <label class="input-group-text" for="name">名稱</label>
@@ -47,8 +48,39 @@
         </div>
 
         <button type="submit" class="btn btn-primary">送出</button>
-        <a class="btn btn-secondary" th:href="@{/product/manage}">返回</a>
+        <a class="btn btn-secondary" onclick="cancel()">返回</a>
     </form>
 </div>
+
+<script>
+    document.getElementById('form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const ask = await Swal.fire({
+            title: "確定新增？",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "送出",
+            cancelButtonText: "取消"
+        });
+
+        if (ask.isConfirmed) {
+            this.submit();
+        }
+    });
+
+    async function cancel() {
+        const ask = await Swal.fire({
+            title: "確定返回？",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "確定",
+            cancelButtonText: "取消"
+        });
+        if (ask.isConfirmed) {
+            window.location.href = "/product/manage";
+        }
+    }
+</script>
 </body>
 </html>

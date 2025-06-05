@@ -23,6 +23,7 @@
         <form method="get" th:action="@{/product/controller}">
             <label for="sizeSelect">每頁顯示</label>
             <select id="sizeSelect" name="size" onchange="this.form.submit()">
+                <option value="" disabled selected>&nbsp;</option>
                 <option value="4" th:selected="${size == 4}">4</option>
                 <option value="8" th:selected="${size == 8}">8</option>
                 <option value="12" th:selected="${size == 12}">12</option>

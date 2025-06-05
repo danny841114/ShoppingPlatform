@@ -5,6 +5,7 @@
     <title>電商平台 - 登入</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div th:replace="/fragment/navbar :: navbar"></div>
@@ -28,7 +29,6 @@
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">登入</button>
             </div>
-            <div class="text-center mt-2" id="errorMsg"></div>
         </form>
     </div>
 </div>
@@ -50,9 +50,22 @@
         const result = await response.json();
         if (response.ok) {
             document.cookie = "jwt=" + result.token + "; path=/";
+
+            await Swal.fire({
+                title: "登入成功",
+                icon: "success",
+                text: "確定後跳轉首頁",
+                confirmButtonText: "確定",
+            });
+
             window.location.href = "/index";
         } else {
-            document.getElementById('errorMsg').innerText = result.error || "登入失敗";
+            await Swal.fire({
+                title: "登入失敗",
+                icon: "error",
+                text: result.message,
+                confirmButtonText: "確定",
+            });
         }
     });
 </script>

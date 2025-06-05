@@ -5,6 +5,7 @@
     <title>電商平台 - 註冊</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div th:replace="/fragment/navbar :: navbar"></div>
@@ -34,10 +35,11 @@
             <button type="submit" class="btn btn-primary">註冊</button>
         </div>
 
-        <div class="mb-5 text-center text-center" th:text="${errors!=null ? errors['error'] : ''}"></div>
-        <div class="mb-3 text-danger text-center" id="accountError"></div>
-        <div class="mb-3 text-danger text-center" id="passwordError"></div>
-        <div class="mb-3 text-danger text-center" id="passwordConfirmError"></div>
+        <div class="mb-3"></div>
+        <div class="mb-5 text-danger text-center" th:text="${errors!=null ? errors['error'] : ''}"></div>
+        <div class="mb-3 text-danger text-center" id="accountError" style="display: none"></div>
+        <div class="mb-3 text-danger text-center" id="passwordError" style="display: none"></div>
+        <div class="mb-3 text-danger text-center" id="passwordConfirmError" style="display: none"></div>
     </form>
 </div>
 
@@ -56,10 +58,11 @@
             const accountRegex = /^[a-zA-Z0-9_]{4,20}$/;
 
             if (!accountRegex.test(account)) {
-                accountError.innerHTML = "帳號格式錯誤<br/>需4-20碼且只能是英數字與底線";
+                accountError.style.display = "block";
+                accountError.textContent = "帳號需4-20碼且只能是英數字與底線";
                 return false;
             } else {
-                accountError.textContent = "";
+                accountError.style.display = "none";
                 return true;
             }
         };
@@ -67,10 +70,11 @@
         const validatePassword = () => {
             const password = passwordInput.value;
             if (password.length < 8) {
+                passwordError.style.display = "block";
                 passwordError.textContent = "密碼至少8碼";
                 return false;
             } else {
-                passwordError.textContent = "";
+                passwordError.style.display = "none";
                 return true;
             }
         };
@@ -79,10 +83,11 @@
             const password = passwordInput.value;
             const passwordConfirm = passwordConfirmInput.value;
             if (password !== passwordConfirm) {
+                passwordConfirmError.style.display = "block";
                 passwordConfirmError.textContent = "確認密碼欄位內容不同";
                 return false;
             } else {
-                passwordConfirmError.textContent = "";
+                passwordConfirmError.style.display = "none";
                 return true;
             }
         };
@@ -100,7 +105,12 @@
             const isPasswordConfirmedValid = validatePasswordConfirm();
 
             if (!isAccountValid || !isPasswordValid || !isPasswordConfirmedValid) {
-                window.alert("帳號及密碼格式或內容仍有誤！");
+                Swal.fire({
+                    title: "註冊失敗",
+                    icon: "error",
+                    text: "帳號及密碼格式或內容仍有誤！",
+                    confirmButtonText: "確定",
+                });
                 event.preventDefault();
             }
         });

@@ -32,7 +32,7 @@ public class RegisterController {
         Member member = memberService.register(account, password);
 
         if (member == null) {
-            errors.put("error", "帳號已存在");
+            errors.put("error", "帳號 " + account + " 已存在");
             return "/secure/register";
         }
 
@@ -41,7 +41,7 @@ public class RegisterController {
 
     @ResponseBody
     @PostMapping("/api/register")
-    public ResponseEntity<?> register(@RequestBody HashMap<String,String> map) {
+    public ResponseEntity<?> register(@RequestBody HashMap<String, String> map) {
         String account = map.get("account");
         String password = map.get("password");
 

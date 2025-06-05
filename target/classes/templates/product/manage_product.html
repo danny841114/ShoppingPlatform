@@ -5,6 +5,7 @@
     <title>電商平台 - 管理商品</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div th:replace="/fragment/navbar :: navbar"></div>
@@ -25,7 +26,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr style="height:100px;" th:each="product,iterStat : ${productList}">
+        <tr style="height:100px;" th:id="${product.id}" th:each="product,iterStat : ${productList}">
             <th class="align-middle text-center" scope="row" th:text="${iterStat.count}">#</th>
             <td class="align-middle text-center" th:text="${product.name}">名稱</td>
             <td class="align-middle text-center" th:text="${product.description}">描述</td>
@@ -46,18 +47,43 @@
 </div>
 
 <script>
-    function deleteProduct(productId) {
-        if (!confirm("確認刪除？")) {
+    /* 更新流水號 */
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll("table tbody tr");
+        rows.forEach((row, index) => {
+            const th = row.querySelector("th");
+            if (th) {
+                th.textContent = index + 1;
+            }
+        });
+    }
+
+    /* 刪除商品 */
+    async function deleteProduct(productId) {
+        const ask = await Swal.fire({
+            title: "確定刪除？",
+            icon: "warning",
+            allowOutsideClick: false,
+            showCancelButton: true,
+            confirmButtonText: "確認",
+            cancelButtonText: "返回",
+        });
+        if (!ask.isConfirmed) {
             return;
         }
 
         fetch(`/api/product/${productId}`, {
             method: 'DELETE'
         }).then(res => {
-            if (res.ok) alert('刪除成功');
-            location.reload();
+            if (res.ok) {
+                const row = document.getElementById(productId);
+                if (row) {
+                    row.remove();
+                    updateRowNumbers();
+                }
+            }
         }).catch(error => {
-            alert("刪除失敗");
+            alert("刪除失敗" + error);
         });
     }
 </script>
