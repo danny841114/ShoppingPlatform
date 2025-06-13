@@ -30,22 +30,22 @@ public class RouteController {
         model.addAttribute("page", 0);
         model.addAttribute("totalPages", 1);
 
-        return "/index";
+        return "index";
     }
 
     @GetMapping("/secure/login")
     public String login() {
-        return "/secure/login";
+        return "secure/login";
     }
 
     @GetMapping("/secure/register")
     public String register() {
-        return "/secure/register";
+        return "secure/register";
     }
 
     @GetMapping("/product/add")
     public String addProduct() {
-        return "/product/add_product";
+        return "product/add_product";
     }
 
     @GetMapping("/product/manage")
@@ -53,13 +53,13 @@ public class RouteController {
         String account = (String) request.getAttribute("account");
         List<Product> productList = productService.findByVendorAccount(account);
         model.addAttribute("productList", productList);
-        return "/product/manage_product";
+        return "product/manage_product";
     }
 
     @GetMapping("/product/modify")
     public String modifyProduct(Model model, @RequestParam Integer id) {
         Product product = productService.findById(id);
         model.addAttribute("product", product);
-        return "/product/modify_product";
+        return "product/modify_product";
     }
 }

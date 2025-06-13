@@ -25,9 +25,9 @@ public class LoginAspect {
 
     // 從JoinPoint中取得account
     private String getAccountFromArgs(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs(); //取得被攔截方法的所有參數（陣列）
+        Object[] args = joinPoint.getArgs(); // 取得被攔截方法的所有參數（陣列）
 
-        if (args.length > 0 && args[0] instanceof Map<?, ?> map) { // 利用instanceof同時判斷與轉型為Map
+        if (args.length > 0 && args[0] instanceof Map<?, ?> map) { // 如果方法的參數至少有一個，且第一個參數是 Map 型別，就將它轉型為 map
             Object account = map.get("account");
             return account != null ? account.toString() : "未知帳號";
         }
