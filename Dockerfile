@@ -1,8 +1,7 @@
 FROM openjdk:21-jdk-slim
 
-WORKDIR /root
+WORKDIR /app
 
-COPY target/ShoppingPlatform-0.0.1-SNAPSHOT.jar root.jar
+COPY target/ShoppingPlatform-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "root.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
