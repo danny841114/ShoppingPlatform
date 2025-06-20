@@ -79,7 +79,7 @@ public class ProductController {
         model.addAttribute("size", size);
         model.addAttribute("keyword", keyword);
 
-        return "/index";
+        return "index";
     }
 
     @PostMapping("/product/modify/controller")
