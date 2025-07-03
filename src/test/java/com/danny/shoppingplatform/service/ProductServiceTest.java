@@ -1,7 +1,7 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dao.MemberDao;
-import com.danny.shoppingplatform.dao.ProductDao;
+import com.danny.shoppingplatform.repository.MemberRepository;
+import com.danny.shoppingplatform.repository.ProductRepository;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import org.junit.jupiter.api.Test;
@@ -26,10 +26,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
     @Mock
-    private MemberDao memberDao;
+    private MemberRepository memberRepository;
 
     @Mock
-    private ProductDao productDao;
+    private ProductRepository productRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -91,8 +91,8 @@ public class ProductServiceTest {
         mockProduct.setQuantity(999);
         mockProduct.setPhoto(new byte[]{0, 0, 0});
 
-        when(productDao.findById(id)).thenReturn(Optional.of(mockProduct));
-        when(productDao.save(any(Product.class)))
+        when(productRepository.findById(id)).thenReturn(Optional.of(mockProduct));
+        when(productRepository.save(any(Product.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -108,7 +108,7 @@ public class ProductServiceTest {
         assertArrayEquals(photo, result.getPhoto());
 
         // Verify
-        verify(productDao).findById(id);
+        verify(productRepository).findById(id);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ProductServiceTest {
         product.setId(1);
         product.setName("John");
 
-        when(productDao.findById(1)).thenReturn(Optional.of(product));
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
 
         // Act
         Product resultProduct = productService.findById(1);
@@ -139,7 +139,7 @@ public class ProductServiceTest {
         p2.setName("Product B");
         List<Product> mockProducts = Arrays.asList(p1, p2);
 
-        when(productDao.findAll()).thenReturn(mockProducts);
+        when(productRepository.findAll()).thenReturn(mockProducts);
 
         // Act
         List<Product> result = productService.findAll();
@@ -150,7 +150,7 @@ public class ProductServiceTest {
         assertEquals("Product A", result.getFirst().getName());
 
         // Verify
-        verify(productDao).findAll();
+        verify(productRepository).findAll();
     }
 
     @Test
@@ -167,8 +167,8 @@ public class ProductServiceTest {
         p2.setName("Product B");
         List<Product> mockProducts = Arrays.asList(p1, p2);
 
-        when(memberDao.findByAccount(account)).thenReturn(mockMember);
-        when(productDao.findByMember(mockMember)).thenReturn(mockProducts);
+        when(memberRepository.findByAccount(account)).thenReturn(mockMember);
+        when(productRepository.findByMember(mockMember)).thenReturn(mockProducts);
 
         // Act
         List<Product> result = productService.findByVendorAccount(account);
@@ -179,8 +179,8 @@ public class ProductServiceTest {
         assertEquals("Product A", result.getFirst().getName());
 
         // Verify
-        verify(memberDao).findByAccount(account);
-        verify(productDao).findByMember(mockMember);
+        verify(memberRepository).findByAccount(account);
+        verify(productRepository).findByMember(mockMember);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class ProductServiceTest {
         }
 
         Page<Product> mockPage = new PageImpl<>(products, pageable, products.size());
-        when(productDao.findAll(pageable)).thenReturn(mockPage);
+        when(productRepository.findAll(pageable)).thenReturn(mockPage);
 
         // Act
         Page<Product> result = productService.findAllByPageable(pageable);
@@ -207,7 +207,7 @@ public class ProductServiceTest {
         assertEquals("Product 1", result.getContent().getFirst().getName());
 
         // Verify
-        verify(productDao).findAll(pageable);
+        verify(productRepository).findAll(pageable);
     }
 
 //    @Test
@@ -245,6 +245,6 @@ public class ProductServiceTest {
         productService.deleteById(testId);
 
         // Verify
-        verify(productDao).deleteById(testId);
+        verify(productRepository).deleteById(testId);
     }
 }

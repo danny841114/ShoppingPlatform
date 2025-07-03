@@ -1,20 +1,20 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dao.MemberDao;
+import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
 public class MemberService {
-    private final MemberDao memberDao;
+    private final MemberRepository memberRepository;
 
-    public MemberService(MemberDao memberDao) {
-        this.memberDao = memberDao;
+    public MemberService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
     }
 
     public Member register(String account, String password) {
-        if (memberDao.findByAccount(account) != null) {
+        if (memberRepository.findByAccount(account) != null) {
             return null; // 回傳null，表示未註冊成功。
         }
 
@@ -23,7 +23,7 @@ public class MemberService {
             member.setAccount(account);
             member.setPassword(password);
             member.setRole("USER");
-            memberDao.save(member);
+            memberRepository.save(member);
 
             return member;
         }
@@ -31,7 +31,7 @@ public class MemberService {
     }
 
     public Member login(String account, String password) {
-        Member member = memberDao.findByAccount(account);
+        Member member = memberRepository.findByAccount(account);
         if (member == null) {
             return null;
         }
@@ -47,6 +47,6 @@ public class MemberService {
     }
 
     public Member findByAccount(String account) {
-        return memberDao.findByAccount(account);
+        return memberRepository.findByAccount(account);
     }
 }

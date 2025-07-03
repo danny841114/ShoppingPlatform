@@ -112,7 +112,7 @@ public class ProductControllerTest {
         verify(model).addAttribute("page", page);
         verify(model).addAttribute("size", size);
         verify(model).addAttribute("keyword", null);
-        assertEquals("/index", view);
+        assertEquals("index", view);
     }
 
 //    @Test

@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.dao;
+package com.danny.shoppingplatform.repository;
 
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ProductDao extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findByNameContaining(String name, Pageable pageable);
     List<Product> findByMember(Member member);
 }
