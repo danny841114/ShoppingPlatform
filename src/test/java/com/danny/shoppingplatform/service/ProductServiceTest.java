@@ -37,41 +37,41 @@ public class ProductServiceTest {
     @Captor
     ArgumentCaptor<Product> productCaptor;
 
-//    @Test
-//    public void testAddProduct() {
-//        // Arrange
-//        String name = "Test Product";
-//        String description = "This is a test";
-//        Integer vendorId = 1;
-//        Integer price = 100;
-//        Integer quantity = 10;
-//        byte[] photo = new byte[]{1, 2, 3};
-//
-//        Member mockMember = new Member();
-//        mockMember.setId(vendorId);
-//
-//        when(memberDao.findById(vendorId)).thenReturn(Optional.of(mockMember));
-//        when(productDao.save(any(Product.class)))
-//                .thenAnswer(invocation -> invocation.getArgument(0));
-//
-//        // Act
-//        Product result = productService.addProduct(name, description, vendorId, price, quantity, photo);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals(name, result.getName());
-//        assertEquals(description, result.getDescription());
-//        assertEquals(price, result.getPrice());
-//        assertEquals(quantity, result.getQuantity());
-//        assertArrayEquals(photo, result.getPhoto());
-//        assertEquals(mockMember, result.getMember());
-//        Product savedProduct = productCaptor.getValue();
-//        assertEquals(name, savedProduct.getName());
-//
-//        // Verify
-//        verify(memberDao).findById(vendorId);
-//        verify(productDao).save(productCaptor.capture());
-//    }
+    @Test
+    public void testAddProduct() {
+        // Arrange
+        String name = "Test Product";
+        String description = "This is a test";
+        Integer vendorId = 1;
+        Integer price = 100;
+        Integer quantity = 10;
+        byte[] photo = new byte[]{1, 2, 3};
+
+        Member mockMember = new Member();
+        mockMember.setId(vendorId);
+
+        when(memberRepository.findById(vendorId)).thenReturn(Optional.of(mockMember));
+        when(productRepository.save(any(Product.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Product result = productService.addProduct(name, description, vendorId, price, quantity, photo);
+
+        // Verify
+        verify(memberRepository).findById(vendorId);
+        verify(productRepository).save(productCaptor.capture());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(name, result.getName());
+        assertEquals(description, result.getDescription());
+        assertEquals(price, result.getPrice());
+        assertEquals(quantity, result.getQuantity());
+        assertArrayEquals(photo, result.getPhoto());
+        assertEquals(mockMember, result.getMember());
+        Product savedProduct = productCaptor.getValue();
+        assertEquals(name, savedProduct.getName());
+    }
 
     @Test
     public void testModifyProduct() {

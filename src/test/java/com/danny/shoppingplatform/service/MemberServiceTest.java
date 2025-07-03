@@ -22,7 +22,7 @@ public class MemberServiceTest {
     private MemberService memberService;
 
     @Test
-    public void testRegister_Success() {
+    public void testRegister_success() {
         String account = "test";
         String password = "1234";
 
@@ -37,7 +37,7 @@ public class MemberServiceTest {
     }
 
     @Test
-    void testRegister_AccountExists() {
+    void testRegister_accountExists() {
         String account = "test";
         String password = "1234";
 
@@ -50,14 +50,62 @@ public class MemberServiceTest {
     }
 
     @Test
-    public void testLogin_Success() {
+    public void testLogin_success() {
+        // Arrange
+        String account = "danny";
+        String password = "aaa123";
+        Member mockMember = new Member();
+        mockMember.setAccount(account);
+        mockMember.setPassword(password);
 
+        when(memberRepository.findByAccount(account)).thenReturn(mockMember);
+
+        // Act
+        Member actualMember = memberService.login(account, password);
+
+        // Assert
+        assertEquals(mockMember,actualMember);
     }
 
     @Test
-    public void TestFindByAccount() {
+    public void testLogin_accountNotFound() {
         // Arrange
-        String account="test";
+        String account = "danny";
+        String password = "aaa123";
+
+        when(memberRepository.findByAccount(account)).thenReturn(null);
+
+        // Act
+        Member actualMember = memberService.login(account, password);
+
+        // Assert
+        assertNull(actualMember);
+        verify(memberRepository).findByAccount(account);
+    }
+
+    @Test
+    public void testLogin_passwordWrong() {
+        // Arrange
+        String account = "danny";
+        String password = "aaa123";
+        Member mockMember = new Member();
+        mockMember.setAccount(account);
+        mockMember.setPassword("bbb456");
+
+        when(memberRepository.findByAccount(account)).thenReturn(mockMember);
+
+        // Act
+        Member actualMember = memberService.login(account, password);
+
+        // Assert
+        assertNull(actualMember);
+        verify(memberRepository).findByAccount(account);
+    }
+
+    @Test
+    public void testFindByAccount() {
+        // Arrange
+        String account = "test";
         Member mockMember = new Member();
         mockMember.setAccount(account);
 
