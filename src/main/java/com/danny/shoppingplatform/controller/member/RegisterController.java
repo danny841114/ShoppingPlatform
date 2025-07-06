@@ -33,7 +33,7 @@ public class RegisterController {
 
         if (member == null) {
             errors.put("error", "帳號 " + account + " 已存在");
-            return "/secure/register";
+            return "/member/register";
         }
 
         return "redirect:/index";

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>電商平台 - 登入</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div th:replace="~{fragment/navbar :: navbar}"></div>
+
+<div class="container mt-5 justify-content-center align-items-center" style="width: 300px;">
+    <h3 class="text-center">登入</h3>
+    <div>
+        <form id="loginForm">
+            <div class="input-group mb-3">
+                <span class="input-group-text">帳號</span>
+                <input type="text" class="form-control" name="account" aria-label="account"
+                       id="account" required>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">密碼</span>
+                <input type="password" class="form-control" name="password" aria-label="account"
+                       id="password" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">登入</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const account = document.getElementById('account').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({account, password}) // 簡寫語法
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            document.cookie = "jwt=" + result.token + "; path=/";
+
+            await Swal.fire({
+                title: "登入成功",
+                icon: "success",
+                text: "確定後跳轉首頁",
+                confirmButtonText: "確定",
+            });
+
+            window.location.href = "/index";
+        } else {
+            await Swal.fire({
+                title: "登入失敗",
+                icon: "error",
+                text: result.message,
+                confirmButtonText: "確定",
+            });
+        }
+    });
+</script>
+</body>
+</html>

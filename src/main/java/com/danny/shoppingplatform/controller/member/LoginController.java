@@ -41,8 +41,8 @@ public class LoginController {
         return "redirect:/index";
     }
 
-    @PostMapping("/login")
     @ResponseBody
+    @PostMapping("/api/login")
     public ResponseEntity<?> loginByJwt(@RequestBody Map<String, String> request) {
         String account = request.get("account");
         String password = request.get("password");

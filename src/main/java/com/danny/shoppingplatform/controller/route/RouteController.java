@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.controller.route;
 
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
+import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -14,9 +15,11 @@ import java.util.List;
 
 @Controller
 public class RouteController {
+    private final MemberService memberService;
     private final ProductService productService;
 
-    public RouteController(ProductService productService) {
+    public RouteController(ProductService productService, MemberService memberService) {
+        this.memberService = memberService;
         this.productService = productService;
     }
 
@@ -33,14 +36,22 @@ public class RouteController {
         return "index";
     }
 
-    @GetMapping("/secure/login")
+    @GetMapping("/login")
     public String login() {
-        return "secure/login";
+        return "member/login";
     }
 
-    @GetMapping("/secure/register")
+    @GetMapping("/register")
     public String register() {
-        return "secure/register";
+        return "member/register";
+    }
+
+    @GetMapping("/profile")
+    public String profile(Model model, HttpServletRequest request) {
+        String account = (String) request.getAttribute("account");
+        Member member = memberService.findByAccount(account);
+        model.addAttribute("member", member);
+        return "member/profile";
     }
 
     @GetMapping("/product/add")

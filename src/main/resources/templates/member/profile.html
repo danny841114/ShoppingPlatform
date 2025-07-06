@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>電商平台 - 個人資訊</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div th:replace="~{fragment/navbar :: navbar}"></div>
+
+<div class="container mt-5 justify-content-center align-items-center" style="width: 500px;">
+    <h3 class="text-center">個人資訊</h3>
+    <div>
+        <form id="form" method="post" th:action="@{/profile/modify/controller}" enctype="multipart/form-data">
+            <div class="input-group mb-3">
+                <span class="input-group-text">帳號</span>
+                <input type="text" class="form-control" name="account" aria-label="account"
+                       id="account" th:value="${member.account}" readonly>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">名字</span>
+                <input type="text" class="form-control" name="name" aria-label="name"
+                       id="name" th:value="${member.name}" required>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">生日</span>
+                <input type="date" class="form-control" name="birthdate" aria-label="birthdate"
+                       id="birthdate" th:value="${#dates.format(member.birthdate, 'yyyy-MM-dd')}" required>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">信箱</span>
+                <input type="text" class="form-control" name="email" aria-label="email"
+                       id="email" th:value="${member.email}" required>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">照片</span>
+                <input type="file" class="form-control" name="photo">
+            </div>
+
+            <div class="mb-3 text-center">
+                <img id="preview" th:src="@{/api/member/{id}/photo(id=${member.id})}"
+                     class="img-thumbnail mb-2" style="max-width: 200px;" alt="個人照片"/>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">修改</button>
+                <button class="btn btn-secondary" onclick="reset(this)">重置</button>
+            </div>
+        </form>
+
+        <div class="text-center" th:if="${role == 'USER'}">
+            <button class="btn btn-info" style="margin-top:20px" id="updateRole">升級成賣家</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.getElementById('form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const ask = await Swal.fire({
+            title: "確定修改？",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "送出",
+            cancelButtonText: "取消"
+        });
+
+        if (ask.isConfirmed) {
+            this.submit();
+        }
+    });
+
+    async function reset(btn) {
+        const ask = await Swal.fire({
+            title: "確定重置？",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "確定",
+            cancelButtonText: "取消"
+        });
+        if (ask.isConfirmed) {
+            location.reload()
+        }
+    }
+
+    const updateRoleBtn = document.getElementById('updateRole');
+    if(updateRoleBtn){
+       updateRoleBtn.addEventListener('click', async function (e) {
+            e.preventDefault();
+
+            const ask = await Swal.fire({
+                title: "確定升級賣家？",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "送出",
+                cancelButtonText: "取消"
+            });
+
+            if (ask.isConfirmed) {
+                window.location.href =/*[[ @{/role/upgrade/controller(account=${member.account})} ]]*/ ;
+            }
+        });
+    }
+</script>
+</body>

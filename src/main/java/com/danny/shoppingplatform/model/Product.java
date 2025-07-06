@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class Product {
     private String description;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name="vendor_id")
     private Member member;
 

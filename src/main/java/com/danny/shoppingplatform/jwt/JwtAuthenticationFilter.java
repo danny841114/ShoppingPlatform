@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String token = null;
 
-        // 從Authorization header或Cookie拿token
+        // 從 Authorization header 或 Cookie 拿 token
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 驗證JWT並設定Spring Security的上下文
+        // 驗證 JWT 並設定 Spring Security 的上下文
         if (token != null && jwtUtil.validateToken(token)) {
             String account = jwtUtil.getAccount(token);
             String role = jwtUtil.getRole(token);

@@ -38,8 +38,7 @@ public class ProductRestController {
 
     @GetMapping(value = "/product/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getProductImage(@PathVariable Integer id) {
-        Product product = productService.findById(id);
-        return product.getPhoto();
+        return productService.findById(id).getPhoto();
     }
 
     @GetMapping("/api/product")

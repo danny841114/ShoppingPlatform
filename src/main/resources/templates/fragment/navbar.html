@@ -40,13 +40,16 @@
                         <a class="nav-link active" aria-current="page" th:href="@{/index}">首頁</a>
                     </li>
                     <li class="nav-item" th:if="${isLogin == false}">
-                        <a class="nav-link" th:href="@{/secure/login}">登入</a>
+                        <a class="nav-link" th:href="@{/login}">登入</a>
                     </li>
                     <li class="nav-item" th:if="${isLogin == false}">
-                        <a class="nav-link" th:href="@{/secure/register}">註冊</a>
+                        <a class="nav-link" th:href="@{/register}">註冊</a>
                     </li>
                     <li class="nav-item" th:if="${isLogin == true}">
                         <span class="nav-link disabled" th:text="${account}"></span>
+                    </li>
+                    <li class="nav-item" th:if="${isLogin == true}">
+                        <a class="nav-link" th:href="@{/profile}">個人資訊</a>
                     </li>
                     <li class="nav-item" th:if="${role == 'ADMIN'}">
                         <a class="nav-link" th:href="@{/product/add}">上架商品</a>
