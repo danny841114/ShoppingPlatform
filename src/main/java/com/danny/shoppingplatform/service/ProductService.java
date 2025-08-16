@@ -24,6 +24,23 @@ public class ProductService {
         this.memberRepository = memberRepository;
     }
 
+
+    public Product findById(Integer id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public List<Product> findAll() {
+        return productRepository.findAll();
+    }
+
+    public Page<Product> findAllByPageable(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    public void deleteById(Integer id) {
+        productRepository.deleteById(id);
+    }
+
     public Product addProduct(String name, String description, Integer vendorId, Integer price, Integer quantity, byte[] photo) {
         Product product = new Product();
         product.setName(name);
@@ -53,21 +70,9 @@ public class ProductService {
         return product;
     }
 
-    public Product findById(Integer id) {
-        return productRepository.findById(id).orElse(null);
-    }
-
-    public List<Product> findAll() {
-        return productRepository.findAll();
-    }
-
     public List<Product> findByVendorAccount(String account) {
         Member member = memberRepository.findByAccount(account);
         return productRepository.findByMember(member);
-    }
-
-    public Page<Product> findAllByPageable(Pageable pageable) {
-        return productRepository.findAll(pageable);
     }
 
     public Page<Product> findByNameContaining(String keyword, Pageable pageable) {
@@ -89,7 +94,4 @@ public class ProductService {
         return new PageImpl<>(pageContent, pageable, mergedList.size());
     }
 
-    public void deleteById(Integer id) {
-        productRepository.deleteById(id);
-    }
 }

@@ -8,9 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import java.text.ParseException;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,96 +25,112 @@ public class MemberServiceTest {
     public void testRegister_success() {
         String account = "test";
         String password = "1234";
-
         when(memberRepository.findByAccount(account)).thenReturn(null);
 
-        Member result = memberService.register(account, password);
+        Member member = memberService.register(account, password);
 
-        assertNotNull(result);
-        assertEquals(account, result.getAccount());
-        assertEquals(password, result.getPassword());
-        assertEquals("USER", result.getRole());
+        assertNotNull(member);
+        assertEquals(account, member.getAccount());
+        assertEquals(password, member.getPassword());
+        assertEquals("USER", member.getRole());
+        verify(memberRepository).save(any(Member.class));
     }
+
+    @Test
+    void testRegister_accountOrPasswordNull() {
+        String account = "";
+        String password = "1234";
+
+        Member member = memberService.register(account, password);
+
+        assertNull(member);
+        verify(memberRepository, never()).save(any());
+    }
+
 
     @Test
     void testRegister_accountExists() {
         String account = "test";
         String password = "1234";
-
         when(memberRepository.findByAccount(account)).thenReturn(new Member());
 
-        Member result = memberService.register(account, password);
+        Member member = memberService.register(account, password);
 
-        assertNull(result);
-        verify(memberRepository, never()).save(any()); // 不應該呼叫 save
+        assertNull(member);
+        verify(memberRepository, never()).save(any());
     }
 
     @Test
     public void testLogin_success() {
-        // Arrange
         String account = "danny";
         String password = "aaa123";
         Member mockMember = new Member();
         mockMember.setAccount(account);
         mockMember.setPassword(password);
-
         when(memberRepository.findByAccount(account)).thenReturn(mockMember);
 
-        // Act
         Member actualMember = memberService.login(account, password);
 
-        // Assert
-        assertEquals(mockMember,actualMember);
+        assertEquals(mockMember, actualMember);
+        verify(memberRepository).findByAccount(account);
     }
 
     @Test
     public void testLogin_accountNotFound() {
-        // Arrange
         String account = "danny";
         String password = "aaa123";
-
         when(memberRepository.findByAccount(account)).thenReturn(null);
 
-        // Act
         Member actualMember = memberService.login(account, password);
 
-        // Assert
         assertNull(actualMember);
         verify(memberRepository).findByAccount(account);
     }
 
     @Test
     public void testLogin_passwordWrong() {
-        // Arrange
         String account = "danny";
         String password = "aaa123";
         Member mockMember = new Member();
         mockMember.setAccount(account);
         mockMember.setPassword("bbb456");
-
         when(memberRepository.findByAccount(account)).thenReturn(mockMember);
 
-        // Act
-        Member actualMember = memberService.login(account, password);
+        Member member = memberService.login(account, password);
 
-        // Assert
-        assertNull(actualMember);
+        assertNull(member);
         verify(memberRepository).findByAccount(account);
     }
 
     @Test
-    public void testFindByAccount() {
-        // Arrange
+    public void testModifyProfile_success() throws ParseException {
         String account = "test";
+        String name = "danny";
+        String birthdate = "2020-01-01";
+        String email = "danny@gmail.com";
+        byte[] photo = new byte[0];
         Member mockMember = new Member();
-        mockMember.setAccount(account);
-
         when(memberRepository.findByAccount(account)).thenReturn(mockMember);
 
-        // Act
-        Member resultMember = memberService.findByAccount(account);
+        memberService.modifyProfile(account,name,birthdate,email,photo);
 
-        // Assert
-        assertEquals("test", resultMember.getAccount());
+        verify(memberRepository).findByAccount(anyString());
+        verify(memberRepository).save(any(Member.class));
+    }
+
+    @Test
+    public void testModifyProfile_fail() throws ParseException {
+        String account = "test";
+        String name = "danny";
+        String birthdate = "2020-01-01";
+        String email = "danny@gmail.com";
+        byte[] photo = new byte[0];
+        Member mockMember = new Member();
+        when(memberRepository.findByAccount(account)).thenReturn(null);
+
+        memberService.modifyProfile(account,name,birthdate,email,photo);
+
+        verify(memberRepository).findByAccount(anyString());
+        verify(memberRepository, never()).save(any(Member.class));
     }
 }

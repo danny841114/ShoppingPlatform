@@ -34,7 +34,7 @@ public class LoginController {
 
         if (member == null) {
             errors.put("error", "帳號或密碼錯誤");
-            return "/secure/login";
+            return "/member/login";
         }
 
         session.setAttribute("member", member);
