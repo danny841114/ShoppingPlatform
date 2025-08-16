@@ -24,10 +24,10 @@ public class CartService {
         this.productRepository = productRepository;
     }
 
-    public List<Cart> getCartListByMember() {
-
+    public List<Cart> getCartListByMember(Integer memberId) {
+        Member member = memberRepository.findById(memberId).orElse(null);
+        return cartRepository.findByMember(member);
     }
-
 
     public void deleteProductFromCart(Integer cartId, Integer productId) {
         cartRepository.deleteById(cartId);
