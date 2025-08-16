@@ -51,10 +51,10 @@
                     <li class="nav-item" th:if="${isLogin == true}">
                         <a class="nav-link" th:href="@{/profile}">個人資訊</a>
                     </li>
-                    <li class="nav-item" th:if="${role == 'ADMIN'}">
+                    <li class="nav-item" th:if="${role == 'VENDOR'}">
                         <a class="nav-link" th:href="@{/product/add}">上架商品</a>
                     </li>
-                    <li class="nav-item" th:if="${role == 'ADMIN'}">
+                    <li class="nav-item" th:if="${role == 'VENDOR'}">
                         <a class="nav-link" th:href="@{/product/manage}">管理商品</a>
                     </li>
                     <li class="nav-item" th:if="${isLogin == true}">

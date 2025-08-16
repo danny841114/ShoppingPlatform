@@ -23,9 +23,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/product/manage").hasRole("ADMIN")
-                        .requestMatchers("/product/add").hasRole("ADMIN")
-                        .requestMatchers("/product/modify/**").hasRole("ADMIN")
+                        .requestMatchers("/product/manage").hasRole("VENDOR")
+                        .requestMatchers("/product/add").hasRole("VENDOR")
+                        .requestMatchers("/product/modify/**").hasRole("VENDOR")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

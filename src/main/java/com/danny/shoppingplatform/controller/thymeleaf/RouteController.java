@@ -1,11 +1,10 @@
-package com.danny.shoppingplatform.controller.route;
+package com.danny.shoppingplatform.controller.thymeleaf;
 
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,6 +51,12 @@ public class RouteController {
         Member member = memberService.findByAccount(account);
         model.addAttribute("member", member);
         return "member/profile";
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/product/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getProductImage(@PathVariable Integer id) {
+        return productService.findById(id).getPhoto();
     }
 
     @GetMapping("/product/add")

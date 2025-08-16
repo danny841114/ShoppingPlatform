@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/product")
 public class ProductRestController {
     private static final Logger logger = LoggerFactory.getLogger(ProductRestController.class);
     private final ProductService productService;
@@ -36,24 +37,24 @@ public class ProductRestController {
         this.memberService = memberService;
     }
 
-    @GetMapping(value = "/product/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getProductImage(@PathVariable Integer id) {
         return productService.findById(id).getPhoto();
     }
 
-    @GetMapping("/api/product")
+    @GetMapping
     public ResponseEntity<?> getProducts() {
         List<Product> productList = productService.findAll();
         return ResponseEntity.ok(productList);
     }
 
-    @GetMapping("/api/product/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getProduct(@PathVariable Integer id) {
         Product product = productService.findById(id);
         return ResponseEntity.ok(product);
     }
 
-    @GetMapping("/api/product/vendor")
+    @GetMapping("/vendor")
     public ResponseEntity<?> getVendorProducts() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();
@@ -64,11 +65,8 @@ public class ProductRestController {
         return ResponseEntity.ok(productList);
     }
 
-    @GetMapping("/api/product/filter")
-    public ResponseEntity<?> getProducts(
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) String keyword) {
+    @GetMapping("/filter")
+    public ResponseEntity<?> getProducts(@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String keyword) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage;
@@ -90,12 +88,8 @@ public class ProductRestController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/api/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(@RequestParam("name") String name,
-                                        @RequestParam("description") String description,
-                                        @RequestParam("price") Integer price,
-                                        @RequestParam("quantity") Integer quantity,
-                                        @RequestPart(value = "photo", required = false) MultipartFile photo) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProduct(@RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();
@@ -117,13 +111,8 @@ public class ProductRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
-    @PutMapping(value = "/api/product/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Integer id,
-                                           @RequestParam("name") String name,
-                                           @RequestParam("description") String description,
-                                           @RequestParam("price") Integer price,
-                                           @RequestParam("quantity") Integer quantity,
-                                           @RequestPart(value = "photo", required = false) MultipartFile photo) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) {
 
         byte[] photoForUpload = null;
 
@@ -140,7 +129,7 @@ public class ProductRestController {
         return ResponseEntity.ok(product);
     }
 
-    @DeleteMapping("/api/product/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
