@@ -29,7 +29,7 @@ public class CartService {
         return cartRepository.findByMember(member);
     }
 
-    public void deleteProductFromCart(Integer cartId, Integer productId) {
+    public void deleteProductFromCart(Integer cartId) {
         cartRepository.deleteById(cartId);
     }
 
@@ -47,27 +47,26 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public Integer addQuantity(Integer cartId) {
+    public Cart increaseProductQuantity(Integer cartId) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart == null) {
             throw new RuntimeException();
         }
         cart.setQuantity(cart.getQuantity() + 1);
         cartRepository.save(cart);
-        return cart.getQuantity();
+        return cart;
     }
 
-    public Integer reduceQuantity(Integer cartId) {
+    public Cart decreaseProductQuantity(Integer cartId) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart == null) {
             throw new RuntimeException();
         }
         if (cart.getQuantity() == 1) {
-            cartRepository.deleteById(cartId);
-            return 0;
+            return cart;
         }
         cart.setQuantity(cart.getQuantity() - 1);
         cartRepository.save(cart);
-        return cart.getQuantity();
+        return cart;
     }
 }

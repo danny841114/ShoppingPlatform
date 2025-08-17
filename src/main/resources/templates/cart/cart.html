@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>電商平台 - 購物車</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div th:replace="~{fragment/navbar :: navbar}"></div>
+
+<div class="container mt-5">
+    <h3>購物車</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">圖片</th>
+            <th scope="col" class="text-center">名稱</th>
+            <th scope="col" class="text-center">描述</th>
+            <th scope="col" class="text-center">單價</th>
+            <th scope="col" class="text-center">數量</th>
+            <th scope="col" class="text-center">總價</th>
+            <th scope="col" class="text-center">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style="height:100px;" th:id="${cart.id}" th:each="cart,iterStat : ${cartList}">
+            <th class="align-middle text-center" scope="row" th:text="${iterStat.count}">#</th>
+            <td class="align-middle text-center">
+                <img th:src="@{/product/{id}/photo(id=${cart.product.id})}" alt="商品圖片"
+                     height="80" onerror="this.onerror=null; this.src='/images/no_image_available.jpg';">
+            </td>
+            <td class="align-middle text-center" th:text="${cart.product.name}">名稱</td>
+            <td class="align-middle text-center" th:text="${cart.product.description}">描述</td>
+            <td class="align-middle text-center" th:text="${cart.product.price}">單價</td>
+            <td class="align-middle text-center">
+                <a type="button" class="btn btn-primary" th:onclick="'decreaseQuantity(' + ${cart.id} + ')'">-</a>&nbsp;
+                <span class="quantity" th:text="${cart.quantity}"></span>&nbsp;
+                <a type="button" class="btn btn-primary" th:onclick="'increaseQuantity(' + ${cart.id} + ')'">+</a>
+            </td>
+            <td class="align-middle text-center total"
+                th:text="${cart.product.price * cart.quantity}">總價
+            </td>
+            <td class="align-middle text-center">
+                <a type="button" class="btn btn-danger" th:onclick="'deleteCart(' + ${cart.id} + ')'">刪除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    /* 更新流水號 */
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll("table tbody tr");
+        rows.forEach((row, index) => {
+            const th = row.querySelector("th");
+            if (th) {
+                th.textContent = index + 1;
+            }
+        });
+    }
+
+    /* 刪除商品 */
+    async function deleteCart(cartId) {
+        const ask = await Swal.fire({
+            title: "確定刪除？",
+            icon: "warning",
+            allowOutsideClick: false,
+            showCancelButton: true,
+            confirmButtonText: "確認",
+            cancelButtonText: "返回",
+        });
+        if (!ask.isConfirmed) {
+            return;
+        }
+
+        fetch(`/api/cart/${cartId}`, {
+            method: 'DELETE'
+        }).then(res => {
+            if (res.ok) {
+                const row = document.getElementById(cartId);
+                if (row) {
+                    row.remove();
+                    updateRowNumbers();
+                }
+            }
+        }).catch(error => {
+            alert("刪除失敗" + error);
+        });
+    }
+
+    /* 增加商品數量 */
+    function increaseQuantity(cartId,product) {
+        fetch(`/api/cart/${cartId}/quantity/increase`, {method: 'PUT'})
+            .then(res => res.json())
+            .then(updatedCart => {
+                const row = document.getElementById(cartId);
+                if (row) {
+                    const quantitySpan = row.querySelector(".quantity");
+                    const totalCell = row.querySelector(".total");
+
+                    if (quantitySpan) {
+                        quantitySpan.textContent = updatedCart.quantity;
+                    }
+                    if (totalCell) {
+                        totalCell.textContent = updatedCart.product.price * updatedCart.quantity;
+                    }
+                }
+            })
+            .catch(error => {
+                alert("增加數量失敗" + error);
+            });
+    }
+
+    /* 減少商品數量 */
+    function decreaseQuantity(cartId,product) {
+        fetch(`/api/cart/${cartId}/quantity/decrease`, {method: 'PUT'})
+            .then(res => res.json())
+            .then(updatedCart => {
+                const row = document.getElementById(cartId);
+                if (row) {
+                    const quantitySpan = row.querySelector(".quantity");
+                    const totalCell = row.querySelector(".total");
+
+                    if (quantitySpan) {
+                        quantitySpan.textContent = updatedCart.quantity;
+                    }
+                    if (totalCell) {
+                        totalCell.textContent = updatedCart.product.price * updatedCart.quantity;
+                    }
+                }
+            })
+            .catch(error => {
+                alert("減少數量失敗" + error);
+            });
+    }
+</script>
+</body>
+</html>

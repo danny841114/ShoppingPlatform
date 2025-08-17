@@ -1,7 +1,9 @@
 package com.danny.shoppingplatform.controller.thymeleaf;
 
+import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
+import com.danny.shoppingplatform.service.CartService;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,10 +18,12 @@ import java.util.List;
 public class RouteController {
     private final MemberService memberService;
     private final ProductService productService;
+    private final CartService cartService;
 
-    public RouteController(ProductService productService, MemberService memberService) {
+    public RouteController(ProductService productService, MemberService memberService, CartService cartService) {
         this.memberService = memberService;
         this.productService = productService;
+        this.cartService = cartService;
     }
 
     @GetMapping({"/index", "/"})
@@ -77,5 +81,14 @@ public class RouteController {
         Product product = productService.findById(id);
         model.addAttribute("product", product);
         return "product/modify_product";
+    }
+
+    @GetMapping("/cart")
+    public String cart(Model model, HttpServletRequest request) {
+        String account = (String) request.getAttribute("account");
+        Member member = memberService.findByAccount(account);
+        List<Cart> cartList = cartService.getCartListByMember(member.getId());
+        model.addAttribute("cartList", cartList);
+        return "cart/cart";
     }
 }

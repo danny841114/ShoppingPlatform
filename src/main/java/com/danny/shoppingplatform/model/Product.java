@@ -1,11 +1,14 @@
 package com.danny.shoppingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -26,6 +29,7 @@ public class Product {
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name="vendor_id")
+    @JsonManagedReference
     private Member member;
 
     @Column(name="price")
@@ -39,4 +43,8 @@ public class Product {
 
     @Column(name="photo")
     private byte[] photo;
+
+    @OneToMany(mappedBy = "product")
+    @JsonBackReference
+    private List<Cart> cartList;
 }

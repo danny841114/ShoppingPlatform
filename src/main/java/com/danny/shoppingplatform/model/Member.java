@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,5 +41,10 @@ public class Member {
     private byte[] photo;
 
     @OneToMany(mappedBy = "member")
+    @JsonBackReference
     private List<Product> productList;
+
+    @OneToMany(mappedBy = "member")
+    @JsonBackReference
+    private List<Cart> cartList;
 }

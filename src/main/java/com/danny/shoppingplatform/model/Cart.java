@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,9 +25,11 @@ public class Cart {
 
     @ManyToOne
     @JoinColumn(name="member_id")
+    @JsonManagedReference
     private Member member;
 
     @ManyToOne
     @JoinColumn(name="product_id")
+    @JsonManagedReference
     private Product product;
 }
