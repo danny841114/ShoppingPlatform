@@ -83,6 +83,13 @@ public class RouteController {
         return "product/modify_product";
     }
 
+    @GetMapping("/product/{id}")
+    public String product(Model model, @PathVariable Integer id) {
+        Product product = productService.findById(id);
+        model.addAttribute("product", product);
+        return "product/product";
+    }
+
     @GetMapping("/cart")
     public String cart(Model model, HttpServletRequest request) {
         String account = (String) request.getAttribute("account");

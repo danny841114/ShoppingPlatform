@@ -6,6 +6,7 @@ import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.repository.CartRepository;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,18 +34,28 @@ public class CartService {
         cartRepository.deleteById(cartId);
     }
 
-    public Cart addProductIntoCart(Integer memberId, Integer productId) {
-        Cart cart = new Cart();
+    public Cart addProductIntoCart(Integer memberId, Integer productId,Integer quantity) {
         Member member = memberRepository.findById(memberId).orElse(null);
         Product product = productRepository.findById(productId).orElse(null);
 
-        if (member == null || product == null) {
-            throw new RuntimeException();
+        if (member == null) {
+            throw new EntityNotFoundException("會員不存在");
+        }
+        if (product == null) {
+            throw new EntityNotFoundException("商品不存在");
         }
 
+        if (memberId.equals(product.getMember().getId())) {
+            throw new IllegalArgumentException("不能將自己的商品加入購物車");
+        }
+
+        Cart cart = new Cart();
         cart.setMember(member);
         cart.setProduct(product);
-        return cartRepository.save(cart);
+        cart.setQuantity(quantity);
+        cartRepository.save(cart);
+        System.err.println("進來囉");
+        return cart;
     }
 
     public Cart increaseProductQuantity(Integer cartId) {
