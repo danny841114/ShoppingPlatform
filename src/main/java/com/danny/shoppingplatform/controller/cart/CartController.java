@@ -1,7 +1,9 @@
 package com.danny.shoppingplatform.controller.cart;
 
 import com.danny.shoppingplatform.model.Cart;
+import com.danny.shoppingplatform.repository.CartRepository;
 import com.danny.shoppingplatform.service.CartService;
+import com.danny.shoppingplatform.service.MemberService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +16,11 @@ import java.util.Map;
 @RequestMapping("/api/cart")
 public class CartController {
     private final CartService cartService;
+    private final MemberService memberService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, MemberService memberService) {
         this.cartService = cartService;
+        this.memberService = memberService;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -52,9 +56,24 @@ public class CartController {
     @PostMapping("/product/{productId}/add")
     public ResponseEntity<?> addProductIntoCart(@PathVariable Integer productId,
                                                 @RequestBody HashMap<String, Integer> requestBody) {
-        Integer memberId = requestBody.get("memberId");
+        int memberId = memberService.getLoginMember().getId();
         Integer quantity = requestBody.get("quantity");
         Cart cart = cartService.addProductIntoCart(memberId, productId, quantity);
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
+    }
+
+    @PostMapping("/product/{productId}/increase/temporary")
+    public ResponseEntity<?> increaseProductQuantityTemporary(@PathVariable Integer productId,
+                                                              @RequestBody HashMap<String, Integer> requestBody) {
+        Integer quantity = requestBody.get("quantity");
+        Integer newQuantity = cartService.increaseProductQuantityTemporary(quantity, productId);
+        return ResponseEntity.ok(newQuantity);
+    }
+
+    @PostMapping("/product/decrease/temporary")
+    public ResponseEntity<?> decreaseProductQuantityTemporary(@RequestBody HashMap<String, Integer> requestBody) {
+        Integer quantity = requestBody.get("quantity");
+        Integer newQuantity = cartService.decreaseProductQuantityTemporary(quantity);
+        return ResponseEntity.ok(newQuantity);
     }
 }

@@ -56,11 +56,8 @@ public class ProductRestController {
 
     @GetMapping("/vendor")
     public ResponseEntity<?> getVendorProducts() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String account = auth.getName();
+        String account = memberService.getLoginMember().getAccount();
         List<Product> productList = productService.findByVendorAccount(account);
-
-        System.out.println("目前登入帳號：" + account);
 
         return ResponseEntity.ok(productList);
     }

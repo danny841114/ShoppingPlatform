@@ -2,6 +2,8 @@ package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -79,5 +81,11 @@ public class MemberService {
         }
         memberRepository.save(member);
         return member;
+    }
+
+    public Member getLoginMember() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String account = auth.getName();
+        return memberRepository.findByAccount(account);
     }
 }

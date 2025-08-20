@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CartService {
@@ -34,7 +35,7 @@ public class CartService {
         cartRepository.deleteById(cartId);
     }
 
-    public Cart addProductIntoCart(Integer memberId, Integer productId,Integer quantity) {
+    public Cart addProductIntoCart(Integer memberId, Integer productId, Integer quantity) {
         Member member = memberRepository.findById(memberId).orElse(null);
         Product product = productRepository.findById(productId).orElse(null);
 
@@ -49,12 +50,24 @@ public class CartService {
             throw new IllegalArgumentException("不能將自己的商品加入購物車");
         }
 
+        Cart cartByMemberAndProduct = cartRepository.findByMemberAndProduct(member, product).orElse(null);
+        if (cartByMemberAndProduct != null) {
+            Integer originalQuantity = cartByMemberAndProduct.getQuantity();
+            if (originalQuantity + quantity > product.getQuantity()) {
+                cartByMemberAndProduct.setQuantity(product.getQuantity());
+                cartRepository.save(cartByMemberAndProduct);
+                return cartByMemberAndProduct;
+            }
+            cartByMemberAndProduct.setQuantity(originalQuantity + quantity);
+            cartRepository.save(cartByMemberAndProduct);
+            return cartByMemberAndProduct;
+        }
+
         Cart cart = new Cart();
         cart.setMember(member);
         cart.setProduct(product);
         cart.setQuantity(quantity);
         cartRepository.save(cart);
-        System.err.println("進來囉");
         return cart;
     }
 
@@ -64,6 +77,9 @@ public class CartService {
             throw new RuntimeException();
         }
         cart.setQuantity(cart.getQuantity() + 1);
+        if (cart.getQuantity() > cart.getProduct().getQuantity()) {
+            cart.setQuantity(cart.getProduct().getQuantity());
+        }
         cartRepository.save(cart);
         return cart;
     }
@@ -79,5 +95,22 @@ public class CartService {
         cart.setQuantity(cart.getQuantity() - 1);
         cartRepository.save(cart);
         return cart;
+    }
+
+    public Integer increaseProductQuantityTemporary(Integer quantity, Integer productId) {
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product != null) {
+            if (Objects.equals(quantity, product.getQuantity())) {
+                return product.getQuantity();
+            }
+        }
+        return quantity + 1;
+    }
+
+    public Integer decreaseProductQuantityTemporary(Integer quantity) {
+        if (quantity == 1) {
+            return 1;
+        }
+        return quantity - 1;
     }
 }

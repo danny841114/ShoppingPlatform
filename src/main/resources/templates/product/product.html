@@ -23,34 +23,45 @@
                 <p th:text="${product.description}">商品描述</p>
                 <h3 th:text="'$'+${product.price}">價格</h3>
                 <p th:text="'賣家：'+${product.member.account}">賣家</p>
-                <a class="btn btn-danger">加入購物車</a>
+                <p th:text="'庫存數量：'+${product.quantity}">賣家</p>
+                <p>
+                    <a type="button" class="btn btn-primary">-</a>&nbsp;
+                    <span>
+                        <label>
+                            <input class="form-control" style="text-align: center" value=1
+                                   id="quantity" size="5" disabled/>
+                        </label>
+                    </span>&nbsp;
+                    <a type="button" class="btn btn-primary">+</a>&nbsp;
+                    <a class="btn btn-danger">加入購物車</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
 <script>
     /* 加入購物車 (未改) */
-    function addProductIntoCart(cartId,product) {
-        fetch(`/api/cart/${cartId}/quantity/increase`, {method: 'PUT'})
-            .then(res => res.json())
-            .then(updatedCart => {
-                const row = document.getElementById(cartId);
-                if (row) {
-                    const quantitySpan = row.querySelector(".quantity");
-                    const totalCell = row.querySelector(".total");
-
-                    if (quantitySpan) {
-                        quantitySpan.textContent = updatedCart.quantity;
-                    }
-                    if (totalCell) {
-                        totalCell.textContent = updatedCart.product.price * updatedCart.quantity;
-                    }
-                }
-            })
-            .catch(error => {
-                alert("增加數量失敗" + error);
-            });
-    }
+    // function addProductIntoCart(productId) {
+    //     fetch(`/api/cart//product/${productId}/increase/temporary`, {method: 'PUT'})
+    //         .then(res => res.json())
+    //         .then(updatedCart => {
+    //             const row = document.getElementById(quantity);
+    //             if (row) {
+    //                 const quantitySpan = row.querySelector(".quantity");
+    //                 const totalCell = row.querySelector(".total");
+    //
+    //                 if (quantitySpan) {
+    //                     quantitySpan.textContent = updatedCart.quantity;
+    //                 }
+    //                 if (totalCell) {
+    //                     totalCell.textContent = updatedCart.product.price * updatedCart.quantity;
+    //                 }
+    //             }
+    //         })
+    //         .catch(error => {
+    //             alert("增加數量失敗" + error);
+    //         });
+    // }
 </script>
 </body>
 </html>
