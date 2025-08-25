@@ -25,43 +25,45 @@
                 <p th:text="'賣家：'+${product.member.account}">賣家</p>
                 <p th:text="'庫存數量：'+${product.quantity}">賣家</p>
                 <p>
-                    <a type="button" class="btn btn-primary">-</a>&nbsp;
+                    <a type="button" class="btn btn-primary"
+                       th:onclick="reduceCurrentQuantity()">-</a>&nbsp;
                     <span>
                         <label>
                             <input class="form-control" style="text-align: center" value=1
                                    id="quantity" size="5" disabled/>
                         </label>
                     </span>&nbsp;
-                    <a type="button" class="btn btn-primary">+</a>&nbsp;
+                    <a type="button" class="btn btn-primary"
+                       th:onclick="addCurrentQuantity()">+</a>&nbsp;
                     <a class="btn btn-danger">加入購物車</a>
                 </p>
             </div>
         </div>
     </div>
 </div>
-<script>
-    /* 加入購物車 (未改) */
-    // function addProductIntoCart(productId) {
-    //     fetch(`/api/cart//product/${productId}/increase/temporary`, {method: 'PUT'})
-    //         .then(res => res.json())
-    //         .then(updatedCart => {
-    //             const row = document.getElementById(quantity);
-    //             if (row) {
-    //                 const quantitySpan = row.querySelector(".quantity");
-    //                 const totalCell = row.querySelector(".total");
-    //
-    //                 if (quantitySpan) {
-    //                     quantitySpan.textContent = updatedCart.quantity;
-    //                 }
-    //                 if (totalCell) {
-    //                     totalCell.textContent = updatedCart.product.price * updatedCart.quantity;
-    //                 }
-    //             }
-    //         })
-    //         .catch(error => {
-    //             alert("增加數量失敗" + error);
-    //         });
-    // }
+<script th:inline="javascript">
+    /* DOM */
+    let productQuantity = [[${product.quantity}]];
+
+    /* 增加數量 */
+    function addCurrentQuantity() {
+        let quantityInput = document.getElementById("quantity");
+        let currentQuantity = parseInt(quantityInput.value); // 每次更新都要抓 value
+        if(currentQuantity >= productQuantity){
+            return;
+        }
+        quantityInput.value = currentQuantity+1; // 更新要用 quantityInput.value
+    }
+
+    /* 減少數量 */
+    function reduceCurrentQuantity() {
+        let quantityInput = document.getElementById("quantity");
+        let currentQuantity = parseInt(quantityInput.value); // 每次更新都要抓 value
+        if(currentQuantity <= 1){
+            return;
+        }
+        quantityInput.value = currentQuantity-1; // 更新要用 quantityInput.value
+    }
 </script>
 </body>
 </html>

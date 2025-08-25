@@ -96,21 +96,4 @@ public class CartService {
         cartRepository.save(cart);
         return cart;
     }
-
-    public Integer increaseProductQuantityTemporary(Integer quantity, Integer productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product != null) {
-            if (Objects.equals(quantity, product.getQuantity())) {
-                return product.getQuantity();
-            }
-        }
-        return quantity + 1;
-    }
-
-    public Integer decreaseProductQuantityTemporary(Integer quantity) {
-        if (quantity == 1) {
-            return 1;
-        }
-        return quantity - 1;
-    }
 }

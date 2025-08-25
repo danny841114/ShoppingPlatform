@@ -61,19 +61,4 @@ public class CartController {
         Cart cart = cartService.addProductIntoCart(memberId, productId, quantity);
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
     }
-
-    @PostMapping("/product/{productId}/increase/temporary")
-    public ResponseEntity<?> increaseProductQuantityTemporary(@PathVariable Integer productId,
-                                                              @RequestBody HashMap<String, Integer> requestBody) {
-        Integer quantity = requestBody.get("quantity");
-        Integer newQuantity = cartService.increaseProductQuantityTemporary(quantity, productId);
-        return ResponseEntity.ok(newQuantity);
-    }
-
-    @PostMapping("/product/decrease/temporary")
-    public ResponseEntity<?> decreaseProductQuantityTemporary(@RequestBody HashMap<String, Integer> requestBody) {
-        Integer quantity = requestBody.get("quantity");
-        Integer newQuantity = cartService.decreaseProductQuantityTemporary(quantity);
-        return ResponseEntity.ok(newQuantity);
-    }
 }
