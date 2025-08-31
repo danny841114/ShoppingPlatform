@@ -5,6 +5,7 @@
     <title>電商平台 - 商品詳情</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div th:replace="~{fragment/navbar :: navbar}"></div>
@@ -35,7 +36,7 @@
                     </span>&nbsp;
                     <a type="button" class="btn btn-primary"
                        th:onclick="addCurrentQuantity()">+</a>&nbsp;
-                    <a class="btn btn-danger">加入購物車</a>
+                    <a class="btn btn-danger" onclick="addIntoCart()">加入購物車</a>
                 </p>
             </div>
         </div>
@@ -44,6 +45,7 @@
 <script th:inline="javascript">
     /* DOM */
     let productQuantity = [[${product.quantity}]];
+    let productId = [[${product.id}]];
 
     /* 增加數量 */
     function addCurrentQuantity() {
@@ -63,6 +65,26 @@
             return;
         }
         quantityInput.value = currentQuantity-1; // 更新要用 quantityInput.value
+    }
+
+    /* 加入購物車 */
+    async function addIntoCart() {
+        let quantityInput = document.getElementById("quantity");
+        let currentQuantity = parseInt(quantityInput.value); // 每次更新都要抓 value
+
+        await fetch(`/api/cart/product/${productId}/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({"quantity":currentQuantity})
+        });
+
+        await Swal.fire({
+            title: "成功加入購物車",
+            icon: "success",
+            confirmButtonText: "確定",
+        });
     }
 </script>
 </body>
