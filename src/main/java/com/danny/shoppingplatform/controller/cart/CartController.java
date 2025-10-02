@@ -56,6 +56,9 @@ public class CartController {
     @PostMapping("/product/{productId}/add")
     public ResponseEntity<?> addProductIntoCart(@PathVariable Integer productId,
                                                 @RequestBody HashMap<String, Integer> requestBody) {
+        if (memberService.getLoginMember() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("尚未登入");
+        }
         int memberId = memberService.getLoginMember().getId();
         Integer quantity = requestBody.get("quantity");
         Cart cart = cartService.addProductIntoCart(memberId, productId, quantity);
