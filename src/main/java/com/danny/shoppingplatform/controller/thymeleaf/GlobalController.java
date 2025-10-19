@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class GlobalController {
     @ModelAttribute
     public void addAttributes(HttpServletRequest request, Model model) {
-        Object account = request.getAttribute("account");
-        Object role = request.getAttribute("role");
+        String account = (String) request.getAttribute("account");
+        String role = (String) request.getAttribute("role");
 
         if (account != null) {
             model.addAttribute("isLogin", true);
-            model.addAttribute("account", account.toString());
-            model.addAttribute("role", role.toString());
+            model.addAttribute("account", account);
+            model.addAttribute("role", role);
         } else {
             model.addAttribute("isLogin", false);
         }
