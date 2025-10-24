@@ -42,7 +42,7 @@ public class ProductRestController {
         return productService.findById(id).getPhoto();
     }
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<?> getProducts() {
         List<Product> productList = productService.findAll();
         return ResponseEntity.ok(productList);
