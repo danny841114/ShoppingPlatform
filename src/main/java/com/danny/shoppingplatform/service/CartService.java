@@ -9,8 +9,9 @@ import com.danny.shoppingplatform.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CartService {
@@ -35,65 +36,74 @@ public class CartService {
         cartRepository.deleteById(cartId);
     }
 
-    public Cart addProductIntoCart(Integer memberId, Integer productId, Integer quantity) {
-        Member member = memberRepository.findById(memberId).orElse(null);
-        Product product = productRepository.findById(productId).orElse(null);
-
-        if (member == null) {
-            throw new EntityNotFoundException("會員不存在");
+    public Cart addProductIntoCart(Integer memberId,
+                                   Integer productId,
+                                   Integer quantity) throws AccountNotFoundException {
+        Optional<Member> memberOptional = memberRepository.findById(memberId);
+        if (memberOptional.isEmpty()) {
+            throw new AccountNotFoundException("會員不存在");
         }
-        if (product == null) {
+
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
             throw new EntityNotFoundException("商品不存在");
         }
 
+        Product product = productOptional.get();
         if (memberId.equals(product.getMember().getId())) {
             throw new IllegalArgumentException("不能將自己的商品加入購物車");
         }
 
-        Cart cartByMemberAndProduct = cartRepository.findByMemberAndProduct(member, product).orElse(null);
-        if (cartByMemberAndProduct != null) {
-            Integer originalQuantity = cartByMemberAndProduct.getQuantity();
+        Member member = memberOptional.get();
+        Optional<Cart> cartOptional = cartRepository.findByMemberAndProduct(member, product);
+        Cart cart;
+        if (cartOptional.isPresent()) {
+            cart = cartOptional.get();
+            Integer originalQuantity = cart.getQuantity();
+
             if (originalQuantity + quantity > product.getQuantity()) {
-                cartByMemberAndProduct.setQuantity(product.getQuantity());
-                cartRepository.save(cartByMemberAndProduct);
-                return cartByMemberAndProduct;
+                cart.setQuantity(product.getQuantity());
+            } else {
+                cart.setQuantity(originalQuantity + quantity);
             }
-            cartByMemberAndProduct.setQuantity(originalQuantity + quantity);
-            cartRepository.save(cartByMemberAndProduct);
-            return cartByMemberAndProduct;
+        } else {
+            cart = new Cart();
+            cart.setMember(member);
+            cart.setProduct(product);
+            cart.setQuantity(quantity);
         }
 
-        Cart cart = new Cart();
-        cart.setMember(member);
-        cart.setProduct(product);
-        cart.setQuantity(quantity);
         cartRepository.save(cart);
         return cart;
     }
 
     public Cart increaseProductQuantity(Integer cartId) {
-        Cart cart = cartRepository.findById(cartId).orElse(null);
-        if (cart == null) {
-            throw new RuntimeException();
+        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+        if (cartOptional.isEmpty()) {
+            throw new EntityNotFoundException();
         }
-        cart.setQuantity(cart.getQuantity() + 1);
-        if (cart.getQuantity() > cart.getProduct().getQuantity()) {
-            cart.setQuantity(cart.getProduct().getQuantity());
+
+        Cart cart = cartOptional.get();
+        if (cart.getQuantity() + 1 <= cart.getProduct().getQuantity()) {
+            cart.setQuantity(cart.getQuantity() + 1);
+            cartRepository.save(cart);
         }
-        cartRepository.save(cart);
+
         return cart;
     }
 
     public Cart decreaseProductQuantity(Integer cartId) {
-        Cart cart = cartRepository.findById(cartId).orElse(null);
-        if (cart == null) {
-            throw new RuntimeException();
+        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+        if (cartOptional.isEmpty()) {
+            throw new EntityNotFoundException();
         }
-        if (cart.getQuantity() == 1) {
-            return cart;
+
+        Cart cart = cartOptional.get();
+        if (cart.getQuantity() > 1) {
+            cart.setQuantity(cart.getQuantity() - 1);
+            cartRepository.save(cart);
         }
-        cart.setQuantity(cart.getQuantity() - 1);
-        cartRepository.save(cart);
+
         return cart;
     }
 }

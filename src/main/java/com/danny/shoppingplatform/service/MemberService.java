@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+@Slf4j
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
@@ -68,17 +70,30 @@ public class MemberService {
         }
     }
 
-    public Member modifyProfile(String account, String name, String birthdate, String email, byte[] photo) throws ParseException {
+    public Member modifyProfile(String account,
+                                String name,
+                                String birthdate,
+                                String email,
+                                byte[] photo) {
         Member member = memberRepository.findByAccount(account);
         if (member == null) {
             return null;
         }
+
         member.setName(name);
-        member.setBirthdate(new SimpleDateFormat("yyyy-MM-dd").parse(birthdate));
         member.setEmail(email);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            member.setBirthdate(format.parse(birthdate));
+        } catch (ParseException e) {
+            log.error("Parse birthdate error: {}", e.getMessage());
+        }
+
         if (photo != null) {
             member.setPhoto(photo);
         }
+
         memberRepository.save(member);
         return member;
     }

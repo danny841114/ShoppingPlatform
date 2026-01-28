@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +39,7 @@ public class ProductServiceTest {
     ArgumentCaptor<Product> productCaptor;
 
     @Test
-    public void testAddProduct() {
+    public void testAddProduct() throws AccountNotFoundException {
         // Arrange
         String name = "Test Product";
         String description = "This is a test";

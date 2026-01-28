@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 
 @Controller
@@ -34,7 +35,7 @@ public class ProductController {
                              @RequestParam("description") String description,
                              @RequestParam("price") Integer price,
                              @RequestParam("quantity") Integer quantity,
-                             @RequestParam("photo") MultipartFile photo) {
+                             @RequestParam("photo") MultipartFile photo) throws AccountNotFoundException {
 //        原本參數有HttpSession session
 //        Member member = (Member) session.getAttribute("member");
 

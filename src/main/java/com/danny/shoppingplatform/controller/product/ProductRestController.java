@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class ProductRestController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(@RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) {
+    public ResponseEntity<?> addProduct(@RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) throws AccountNotFoundException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();

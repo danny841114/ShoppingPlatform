@@ -5,14 +5,15 @@ import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.text.ParseException;
 
+@Slf4j
 @Controller
 public class ProfileController {
     private final MemberService memberService;
@@ -30,7 +31,7 @@ public class ProfileController {
     }
 
     @GetMapping("/role/upgrade/controller")
-    public String upgradeMemberAndReturnNewToken(@RequestParam("account") String account, HttpServletResponse response) {
+    public String upgradeMemberAndReturnNewToken(@RequestParam String account, HttpServletResponse response) {
         memberService.upgradeRole(account);
 
         Member member = memberService.findByAccount(account);
@@ -46,7 +47,11 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/modify/controller")
-    public String modifyProfile(@RequestParam("account") String account, @RequestParam("name") String name, @RequestParam("birthdate") String birthdate, @RequestParam("email") String email, @RequestParam("photo") MultipartFile photo) throws ParseException {
+    public String modifyProfile(@RequestParam String account,
+                                @RequestParam String name,
+                                @RequestParam String birthdate,
+                                @RequestParam String email,
+                                @RequestParam MultipartFile photo) {
 
         byte[] photoForUpload = null;
 
@@ -55,11 +60,11 @@ public class ProfileController {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
-                System.err.println("圖片上傳失敗");
+                log.error("圖片上傳失敗");
             }
         }
 
-        memberService.modifyProfile(account, name, birthdate, email, photoForUpload);
+        Member member = memberService.modifyProfile(account, name, birthdate, email, photoForUpload);
         return "redirect:/profile";
     }
 }

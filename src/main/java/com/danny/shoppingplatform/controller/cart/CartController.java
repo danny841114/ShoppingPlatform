@@ -1,7 +1,6 @@
 package com.danny.shoppingplatform.controller.cart;
 
 import com.danny.shoppingplatform.model.Cart;
-import com.danny.shoppingplatform.repository.CartRepository;
 import com.danny.shoppingplatform.service.CartService;
 import com.danny.shoppingplatform.service.MemberService;
 import jakarta.persistence.EntityNotFoundException;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +35,12 @@ public class CartController {
         return Map.of("error", ex.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(AccountNotFoundException.class)
+    public Map<String, String> handleMemberNotFound(AccountNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProductFromCart(@PathVariable Integer id) {
         cartService.deleteProductFromCart(id);
@@ -55,7 +61,7 @@ public class CartController {
 
     @PostMapping("/product/{productId}/add")
     public ResponseEntity<?> addProductIntoCart(@PathVariable Integer productId,
-                                                @RequestBody HashMap<String, Integer> requestBody) {
+                                                @RequestBody HashMap<String, Integer> requestBody) throws AccountNotFoundException {
         if (memberService.getLoginMember() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("尚未登入");
         }

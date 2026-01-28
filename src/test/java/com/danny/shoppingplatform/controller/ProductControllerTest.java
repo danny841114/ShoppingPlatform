@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +45,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testAddProduct() {
+    public void testAddProduct() throws AccountNotFoundException {
         // Arrange
         // 模擬 SecurityContext 與帳號
         Authentication authentication = mock(Authentication.class); // Authentication 為一介面，不能直接 new

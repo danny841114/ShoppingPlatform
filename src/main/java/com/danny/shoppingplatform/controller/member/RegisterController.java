@@ -48,9 +48,9 @@ public class RegisterController {
         Member member = memberService.register(account, password);
 
         if (member == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "帳號已存在");
-            return ResponseEntity.badRequest().body(error);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "帳號已存在");
+            return ResponseEntity.badRequest().body(response);
         }
 
         return ResponseEntity.ok().body(member);
