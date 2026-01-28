@@ -5,6 +5,7 @@ import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -26,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/product")
 public class ProductRestController {
-    private static final Logger logger = LoggerFactory.getLogger(ProductRestController.class);
     private final ProductService productService;
     private final MemberService memberService;
 
@@ -44,28 +45,28 @@ public class ProductRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getProducts() {
+    public ResponseEntity<List<Product>> getProducts() {
         List<Product> productList = productService.findAll();
         return ResponseEntity.ok(productList);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProduct(@PathVariable Integer id) {
+    public ResponseEntity<Product> getProduct(@PathVariable Integer id) {
         Product product = productService.findById(id);
         return ResponseEntity.ok(product);
     }
 
     @GetMapping("/vendor")
-    public ResponseEntity<?> getVendorProducts() {
+    public ResponseEntity<List<Product>> getVendorProducts() {
         String account = memberService.getLoginMember().getAccount();
         List<Product> productList = productService.findByVendorAccount(account);
-
         return ResponseEntity.ok(productList);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<?> getProducts(@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String keyword) {
-
+    public ResponseEntity<Map<String, Object>> getProducts(@RequestParam(defaultValue = "5") int size,
+                                                           @RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage;
 
@@ -87,39 +88,43 @@ public class ProductRestController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(@RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) throws AccountNotFoundException {
-
+    public ResponseEntity<?> addProduct(@RequestParam String name,
+                                        @RequestParam String description,
+                                        @RequestParam Integer price,
+                                        @RequestParam Integer quantity,
+                                        @RequestPart(required = false) MultipartFile photo) throws AccountNotFoundException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();
         Member member = memberService.findByAccount(account);
 
         byte[] photoForUpload = null;
-
         if (photo != null && !photo.isEmpty()) {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
-                logger.error("圖片上傳失敗", e);
+                log.error("圖片上傳失敗", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "圖片處理失敗"));
             }
         }
 
         Product product = productService.addProduct(name, description, member.getId(), price, quantity, photoForUpload);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Integer price, @RequestParam("quantity") Integer quantity, @RequestPart(value = "photo", required = false) MultipartFile photo) {
+    public ResponseEntity<?> modifyProduct(@PathVariable Integer id,
+                                           @RequestParam String name,
+                                           @RequestParam String description,
+                                           @RequestParam Integer price,
+                                           @RequestParam Integer quantity,
+                                           @RequestPart(required = false) MultipartFile photo) {
 
         byte[] photoForUpload = null;
-
-        // 即使沒傳圖片，也會回傳 byte[0]，會覆蓋null，所以要先判斷 isEmpty()
         if (photo != null && !photo.isEmpty()) {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
-                logger.error("圖片上傳失敗", e);
+                log.error("圖片上傳失敗", e);
             }
         }
 

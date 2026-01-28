@@ -4,6 +4,7 @@ import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -19,9 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 
+@Slf4j
 @Controller
 public class ProductController {
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
     private final MemberService memberService;
 
@@ -31,31 +32,26 @@ public class ProductController {
     }
 
     @PostMapping("/product/controller")
-    public String addProduct(@RequestParam("name") String name,
-                             @RequestParam("description") String description,
-                             @RequestParam("price") Integer price,
-                             @RequestParam("quantity") Integer quantity,
-                             @RequestParam("photo") MultipartFile photo) throws AccountNotFoundException {
-//        原本參數有HttpSession session
-//        Member member = (Member) session.getAttribute("member");
-
-        // JWT取得帳號
+    public String addProduct(@RequestParam String name,
+                             @RequestParam String description,
+                             @RequestParam Integer price,
+                             @RequestParam Integer quantity,
+                             @RequestParam MultipartFile photo) throws AccountNotFoundException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();
         Member member = memberService.findByAccount(account);
 
         byte[] photoForUpload = null;
-
-        // 即使沒傳圖片，也會回傳 byte[0]，會覆蓋null，所以要先判斷 isEmpty()
         if (!photo.isEmpty()) {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
-                logger.error("圖片上傳失敗", e);
+                log.error("圖片上傳失敗", e);
             }
         }
 
         productService.addProduct(name, description, member.getId(), price, quantity, photoForUpload);
+
         return "redirect:/product/manage";
     }
 
@@ -90,19 +86,17 @@ public class ProductController {
                                 @RequestParam("price") Integer price,
                                 @RequestParam("quantity") Integer quantity,
                                 @RequestParam("photo") MultipartFile photo) {
-
         byte[] photoForUpload = null;
-
-        // 即使沒傳圖片，也會回傳 byte[0]，會覆蓋null，所以要先判斷 isEmpty()
         if (!photo.isEmpty()) {
             try {
                 photoForUpload = photo.getBytes();
             } catch (IOException e) {
-                logger.error("圖片上傳失敗", e);
+                log.error("圖片上傳失敗", e);
             }
         }
 
         productService.modifyProduct(id, name, description, price, quantity, photoForUpload);
+
         return "redirect:/product/manage";
     }
 }
