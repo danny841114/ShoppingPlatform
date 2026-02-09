@@ -1,13 +1,12 @@
 package com.danny.shoppingplatform.controller.product;
 
+import com.danny.shoppingplatform.dto.ProductDto;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.danny.shoppingplatform.service.external.ProductExternalService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,10 +30,14 @@ import java.util.Map;
 public class ProductRestController {
     private final ProductService productService;
     private final MemberService memberService;
+    private final ProductExternalService productExternalService;
 
-    public ProductRestController(ProductService productService, MemberService memberService) {
+    public ProductRestController(ProductService productService,
+                                 MemberService memberService,
+                                 ProductExternalService productExternalService) {
         this.productService = productService;
         this.memberService = memberService;
+        this.productExternalService = productExternalService;
     }
 
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -136,5 +137,12 @@ public class ProductRestController {
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/insert-products-from-website")
+    public ResponseEntity<List<Product>> getProductsFromWebSite() {
+        List<ProductDto> dtoList = productExternalService.getProductsFromWebSite();
+        List<Product> productList = productExternalService.insertProductsFromWebSite(dtoList);
+        return ResponseEntity.ok(productList);
     }
 }
