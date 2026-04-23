@@ -1,0 +1,77 @@
+package com.danny.shoppingplatform.jwt;
+
+import com.danny.shoppingplatform.model.Member;
+import com.danny.shoppingplatform.service.MemberService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+@Slf4j
+@Component
+public class JwtFilter extends OncePerRequestFilter {
+    private final JwtUtil jwtUtil;
+
+    public JwtFilter(JwtUtil jwtUtil, MemberService memberService) {
+        this.jwtUtil = jwtUtil;
+    }
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        try {
+            String token = resolveToken(request);
+
+            if (token != null && jwtUtil.validateToken(token)
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+                String account = jwtUtil.getAccount(token);
+                String role = jwtUtil.getRole(token);
+
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(account, null, authorities);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Authenticated user: {}, setting SecurityContext", account);
+            }
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
+            log.error("Could not set user authentication in security context", e);
+        }
+
+        filterChain.doFilter(request, response); // 執行過濾鏈
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
+}
