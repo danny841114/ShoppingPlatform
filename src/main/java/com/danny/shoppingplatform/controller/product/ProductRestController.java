@@ -1,11 +1,9 @@
 package com.danny.shoppingplatform.controller.product;
 
-import com.danny.shoppingplatform.dto.ProductDto;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
-import com.danny.shoppingplatform.service.external.ProductExternalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,14 +28,10 @@ import java.util.Map;
 public class ProductRestController {
     private final ProductService productService;
     private final MemberService memberService;
-    private final ProductExternalService productExternalService;
 
-    public ProductRestController(ProductService productService,
-                                 MemberService memberService,
-                                 ProductExternalService productExternalService) {
+    public ProductRestController(ProductService productService, MemberService memberService) {
         this.productService = productService;
         this.memberService = memberService;
-        this.productExternalService = productExternalService;
     }
 
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -137,12 +131,5 @@ public class ProductRestController {
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/insert-products-from-website")
-    public ResponseEntity<List<Product>> getProductsFromWebSite() {
-        List<ProductDto> dtoList = productExternalService.getProductsFromWebSite();
-        List<Product> productList = productExternalService.insertProductsFromWebSite(dtoList);
-        return ResponseEntity.ok(productList);
     }
 }
