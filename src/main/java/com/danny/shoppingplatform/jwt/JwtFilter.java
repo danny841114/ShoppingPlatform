@@ -1,12 +1,12 @@
 package com.danny.shoppingplatform.jwt;
 
-import com.danny.shoppingplatform.model.Member;
-import com.danny.shoppingplatform.service.MemberService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,13 +21,10 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-
-    public JwtFilter(JwtUtil jwtUtil, MemberService memberService) {
-        this.jwtUtil = jwtUtil;
-    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -37,14 +34,15 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String token = resolveToken(request);
 
-            if (token != null && jwtUtil.validateToken(token)
+            if (token != null
+                    && jwtUtil.validateToken(token)
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
-                String account = jwtUtil.getAccount(token);
-                String role = jwtUtil.getRole(token);
+                Claims claims = jwtUtil.extractClaims(token);
+                String account = claims.getSubject();
+                String role = claims.get("role", String.class);
 
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(account, null, authorities);
+                var authentication = new UsernamePasswordAuthenticationToken(account, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("Authenticated user: {}, setting SecurityContext", account);

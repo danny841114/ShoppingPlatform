@@ -1,10 +1,14 @@
 package com.danny.shoppingplatform.service;
 
+import com.danny.shoppingplatform.dto.UserDetailsImpl;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -13,7 +17,7 @@ import java.text.SimpleDateFormat;
 
 @Slf4j
 @Service
-public class MemberService {
+public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     public MemberService(MemberRepository memberRepository) {
@@ -102,5 +106,14 @@ public class MemberService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String account = auth.getName();
         return memberRepository.findByAccount(account);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Member member = memberRepository.findByAccount(username);
+
+        if (member == null) throw new UsernameNotFoundException("Account " + username + " not found");
+
+        return new UserDetailsImpl(member);
     }
 }

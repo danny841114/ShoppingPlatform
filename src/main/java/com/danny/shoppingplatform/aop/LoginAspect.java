@@ -1,6 +1,7 @@
 package com.danny.shoppingplatform.aop;
 
 import com.danny.shoppingplatform.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -43,7 +44,10 @@ public class LoginAspect {
 
         if (objectBody instanceof Map<?, ?> map) {
             String token = (String) map.get("token");
-            log.info("登入成功：{}，角色：{}", getAccountFromArgs(joinPoint), jwtUtil.getRole(token));
+            Claims claims = jwtUtil.extractClaims(token);
+            String role = claims.get("role", String.class);
+
+            log.info("登入成功：{}，角色：{}", getAccountFromArgs(joinPoint), role);
         }
     }
 
