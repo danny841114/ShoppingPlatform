@@ -4,6 +4,7 @@ import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
+import com.danny.shoppingplatform.util.ImageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,21 +89,17 @@ public class ProductRestController {
                                         @RequestParam Integer price,
                                         @RequestParam Integer quantity,
                                         @RequestPart(required = false) MultipartFile photo) throws AccountNotFoundException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String account = auth.getName();
-        Member member = memberService.findByAccount(account);
-
-        byte[] photoForUpload = null;
-        if (photo != null && !photo.isEmpty()) {
-            try {
-                photoForUpload = photo.getBytes();
-            } catch (IOException e) {
-                log.error("圖片上傳失敗", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "圖片處理失敗"));
-            }
+        byte[] photoForUpload;
+        try {
+            photoForUpload = ImageHelper.convertImageToByte(photo);
+        } catch (IOException e) {
+            log.error("Get photo bytes failed", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Get photo bytes failed"));
         }
 
-        Product product = productService.addProduct(name, description, member.getId(), price, quantity, photoForUpload);
+        Product product = productService.addProduct(name, description, price, quantity, photoForUpload);
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
@@ -113,14 +110,14 @@ public class ProductRestController {
                                            @RequestParam Integer price,
                                            @RequestParam Integer quantity,
                                            @RequestPart(required = false) MultipartFile photo) {
-
-        byte[] photoForUpload = null;
-        if (photo != null && !photo.isEmpty()) {
-            try {
-                photoForUpload = photo.getBytes();
-            } catch (IOException e) {
-                log.error("圖片上傳失敗", e);
-            }
+        byte[] photoForUpload;
+        try {
+            photoForUpload = ImageHelper.convertImageToByte(photo);
+        } catch (IOException e) {
+            log.error("Get photo bytes failed", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Get photo bytes failed"));
         }
 
         Product product = productService.modifyProduct(id, name, description, price, quantity, photoForUpload);

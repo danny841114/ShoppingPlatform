@@ -56,7 +56,7 @@ public class ProductServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Product result = productService.addProduct(name, description, vendorId, price, quantity, photo);
+        Product result = productService.addProduct(name, description, price, quantity, photo);
 
         // Verify
         verify(memberRepository).findById(vendorId);
@@ -190,7 +190,7 @@ public class ProductServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         List<Product> products = new ArrayList<>();
-        for(int i=1; i<=10; i++) {
+        for (int i = 1; i <= 10; i++) {
             Product product = new Product();
             product.setName("Product " + i);
             products.add(product);

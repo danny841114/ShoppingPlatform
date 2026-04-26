@@ -5,8 +5,11 @@ import com.danny.shoppingplatform.repository.ProductRepository;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +17,7 @@ import javax.security.auth.login.AccountNotFoundException;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
@@ -41,19 +45,20 @@ public class ProductService {
     }
 
     public Product addProduct(String name, String description,
-                              Integer vendorId,
                               Integer price,
                               Integer quantity,
                               byte[] photo) throws AccountNotFoundException {
-        Optional<Member> memberOptional = memberRepository.findById(vendorId);
-        if (memberOptional.isEmpty()) {
-            throw new AccountNotFoundException();
+        String account = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByAccount(account);
+        if (member == null) {
+            log.error("Member with account {} not found", account);
+            throw new AccountNotFoundException("Member with account" + account + " not found");
         }
 
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
-        product.setMember(memberOptional.get());
+        product.setMember(member);
         product.setPrice(price);
         product.setQuantity(quantity);
         product.setDate(new Date());
@@ -71,18 +76,25 @@ public class ProductService {
                                  byte[] photo) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
-            throw new EntityNotFoundException();
+            log.error("Product not found");
+            throw new EntityNotFoundException("Product not found");
         }
 
         Product product = productOptional.get();
+
+        Member member = product.getMember();
+        String account = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!member.getAccount().equals(account)) {
+            log.error("Wrong account from member");
+            throw new AuthorizationDeniedException("Wrong account from member");
+        }
+
         product.setName(name);
         product.setDescription(description);
         product.setPrice(price);
         product.setQuantity(quantity);
         product.setDate(new Date());
-        if (photo != null) {
-            product.setPhoto(photo);
-        }
+        if (photo != null) product.setPhoto(photo);
 
         productRepository.save(product);
         return product;

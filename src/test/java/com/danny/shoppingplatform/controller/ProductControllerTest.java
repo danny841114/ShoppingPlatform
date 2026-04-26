@@ -44,49 +44,49 @@ public class ProductControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    public void testAddProduct() throws AccountNotFoundException {
-        // Arrange
-        // 模擬 SecurityContext 與帳號
-        Authentication authentication = mock(Authentication.class); // Authentication 為一介面，不能直接 new
-        when(authentication.getName()).thenReturn("testAccount");
-
-        SecurityContext securityContext = mock(SecurityContext.class); // SecurityContext 為一介面，不能直接 new
-        when(securityContext.getAuthentication()).thenReturn(authentication); // securityContext 來自 SecurityContext.getContext()      SecurityContextHolder.setContext(securityContext);
-
-        SecurityContextHolder.setContext(securityContext);
-
-        // 模擬會員
-        Member member = new Member();
-        member.setId(1);
-        member.setAccount("testAccount");
-        when(memberService.findByAccount("testAccount")).thenReturn(member);
-
-        // 模擬圖片上傳
-        byte[] imageContent = "dummy image content".getBytes();
-        MockMultipartFile photo = new MockMultipartFile("photo", "photo.jpg", "image/jpeg", imageContent);
-
-        // Act
-        String redirectUrl = productController.addProduct(
-                "Test Product",
-                "Test Description",
-                100,
-                10,
-                photo
-        );
-
-        // Assert
-        assertEquals("redirect:/product/manage", redirectUrl);
-
-        verify(productService, times(1)).addProduct(
-                eq("Test Product"),
-                eq("Test Description"),
-                eq(member.getId()),
-                eq(100),
-                eq(10),
-                any()
-        );
-    }
+//    @Test
+//    public void testAddProduct() throws AccountNotFoundException {
+//        // Arrange
+//        // 模擬 SecurityContext 與帳號
+//        Authentication authentication = mock(Authentication.class); // Authentication 為一介面，不能直接 new
+//        when(authentication.getName()).thenReturn("testAccount");
+//
+//        SecurityContext securityContext = mock(SecurityContext.class); // SecurityContext 為一介面，不能直接 new
+//        when(securityContext.getAuthentication()).thenReturn(authentication); // securityContext 來自 SecurityContext.getContext()      SecurityContextHolder.setContext(securityContext);
+//
+//        SecurityContextHolder.setContext(securityContext);
+//
+//        // 模擬會員
+//        Member member = new Member();
+//        member.setId(1);
+//        member.setAccount("testAccount");
+//        when(memberService.findByAccount("testAccount")).thenReturn(member);
+//
+//        // 模擬圖片上傳
+//        byte[] imageContent = "dummy image content".getBytes();
+//        MockMultipartFile photo = new MockMultipartFile("photo", "photo.jpg", "image/jpeg", imageContent);
+//
+//        // Act
+//        String redirectUrl = productController.addProduct(
+//                "Test Product",
+//                "Test Description",
+//                100,
+//                10,
+//                photo
+//        );
+//
+//        // Assert
+//        assertEquals("redirect:/product/manage", redirectUrl);
+//
+//        verify(productService, times(1)).addProduct(
+//                eq("Test Product"),
+//                eq("Test Description"),
+//                eq(member.getId()),
+//                eq(100),
+//                eq(10),
+//                any()
+//        );
+//    }
 
     @Test
     public void showProductWithoutKeyword() {

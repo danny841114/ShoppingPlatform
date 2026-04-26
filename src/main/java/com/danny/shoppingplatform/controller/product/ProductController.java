@@ -50,7 +50,7 @@ public class ProductController {
             }
         }
 
-        productService.addProduct(name, description, member.getId(), price, quantity, photoForUpload);
+        productService.addProduct(name, description, price, quantity, photoForUpload);
 
         return "redirect:/product/manage";
     }
