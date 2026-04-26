@@ -33,15 +33,15 @@ public class LogoutController {
         return "redirect:/index";
     }
 
-    @ResponseBody
-    @PostMapping("/api/logout")
-    public ResponseEntity<?> logoutApi(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok(Map.of("message", "成功登出"));
-    }
+//    @ResponseBody
+//    @PostMapping("/api/logout")
+//    public ResponseEntity<?> logoutApi(HttpServletResponse response) {
+//        Cookie cookie = new Cookie("jwt", null);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(0);
+//        response.addCookie(cookie);
+//
+//        return ResponseEntity.ok(Map.of("message", "成功登出"));
+//    }
 }
