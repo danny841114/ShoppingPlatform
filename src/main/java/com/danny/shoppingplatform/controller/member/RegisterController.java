@@ -2,44 +2,20 @@ package com.danny.shoppingplatform.controller.member;
 
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.service.MemberService;
-import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RequiredArgsConstructor
+@RestController
 public class RegisterController {
     private final MemberService memberService;
 
-    public RegisterController(MemberService memberService) {
-        this.memberService = memberService;
-    }
-
-    @PostMapping("/register/controller")
-    public String register(Model model, String account, String password, HttpSession session) {
-        Map<String, String> errors = new HashMap<String, String>();
-        model.addAttribute("errors", errors);
-
-        // 若表單未提送成功，使用者輸入的account會留下。
-        model.addAttribute("account", account);
-
-        Member member = memberService.register(account, password);
-
-        if (member == null) {
-            errors.put("error", "帳號 " + account + " 已存在");
-            return "/member/register";
-        }
-
-        return "redirect:/index";
-    }
-
-    @ResponseBody
     @PostMapping("/api/register")
     public ResponseEntity<?> register(@RequestBody HashMap<String, String> map) {
         String account = map.get("account");

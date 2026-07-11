@@ -4,8 +4,6 @@ import com.danny.shoppingplatform.dto.UserDetailsImpl;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.service.MemberService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

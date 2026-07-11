@@ -1,10 +1,10 @@
 package com.danny.shoppingplatform.controller.product;
 
-import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import com.danny.shoppingplatform.util.ImageHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,20 +22,17 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/product")
 public class ProductRestController {
     private final ProductService productService;
     private final MemberService memberService;
 
-    public ProductRestController(ProductService productService, MemberService memberService) {
-        this.productService = productService;
-        this.memberService = memberService;
-    }
-
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
-    public byte[] getProductImage(@PathVariable Integer id) {
-        return productService.findById(id).getPhoto();
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Integer id) {
+        byte[] photo = productService.findById(id).getPhoto();
+        return ResponseEntity.ok(photo);
     }
 
     @GetMapping("")
