@@ -1,15 +1,15 @@
 package com.danny.shoppingplatform.controller.cart;
 
+import com.danny.shoppingplatform.dto.cart.CartAddRequest;
+import com.danny.shoppingplatform.dto.cart.CartDto;
 import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.service.CartService;
 import com.danny.shoppingplatform.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.security.auth.login.AccountNotFoundException;
-import java.util.HashMap;
 
 @RequiredArgsConstructor
 @RestController
@@ -37,15 +37,9 @@ public class CartController {
     }
 
     @PostMapping("/product/{productId}/add")
-    public ResponseEntity<?> addProductIntoCart(@PathVariable Integer productId,
-                                                @RequestBody HashMap<String, Integer> requestBody) throws AccountNotFoundException {
-        if (memberService.getLoginMember() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("尚未登入");
-        }
-
-        int memberId = memberService.getLoginMember().getId();
-        Integer quantity = requestBody.get("quantity");
-        Cart cart = cartService.addProductIntoCart(memberId, productId, quantity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cart);
+    public ResponseEntity<CartDto> addProductIntoCart(@PathVariable Integer productId, @RequestBody CartAddRequest request) {
+        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
+        CartDto cartDto = cartService.addProductIntoCart(productId, request, currentAccount);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartDto);
     }
 }

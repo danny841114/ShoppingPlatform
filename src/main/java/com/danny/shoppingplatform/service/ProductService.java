@@ -4,7 +4,7 @@ import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
 import com.danny.shoppingplatform.dto.product.ProductDto;
 import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
 import com.danny.shoppingplatform.dto.product.ProductPageDto;
-import com.danny.shoppingplatform.exception.InternalServerException;
+import com.danny.shoppingplatform.exception.custom.InternalServerException;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
 import com.danny.shoppingplatform.model.Member;

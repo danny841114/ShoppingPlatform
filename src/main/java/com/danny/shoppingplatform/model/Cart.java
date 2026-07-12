@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -18,7 +18,7 @@ public class Cart {
     private Integer id;
 
     @Column(name="created_date")
-    private Date createdDate;
+    private Instant createdDate;
 
     @Column(name="quantity")
     private Integer quantity;

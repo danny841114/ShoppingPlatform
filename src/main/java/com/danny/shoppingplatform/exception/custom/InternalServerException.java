@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.exception;
+package com.danny.shoppingplatform.exception.custom;
 
 public class InternalServerException extends RuntimeException {
     public InternalServerException(String message) {

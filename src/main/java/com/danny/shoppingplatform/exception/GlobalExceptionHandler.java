@@ -1,6 +1,8 @@
 package com.danny.shoppingplatform.exception;
 
 import com.danny.shoppingplatform.dto.error.CustomErrorResponse;
+import com.danny.shoppingplatform.exception.custom.CustomAccountNotFoundException;
+import com.danny.shoppingplatform.exception.custom.InternalServerException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -65,7 +67,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleMemberNotFound(AccountNotFoundException ex) {
+    public ResponseEntity<CustomErrorResponse> handleAccountNotFound(AccountNotFoundException ex) {
+        CustomErrorResponse error = CustomErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("ACCOUNT_NOT_FOUND")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(CustomAccountNotFoundException.class)
+    public ResponseEntity<CustomErrorResponse> handleAccountNotFound(CustomAccountNotFoundException ex) {
         CustomErrorResponse error = CustomErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .code("ACCOUNT_NOT_FOUND")
