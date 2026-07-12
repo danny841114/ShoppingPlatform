@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/product")
-public class ProductRestController {
+public class ProductController {
     private final ProductService productService;
 
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
