@@ -1,6 +1,6 @@
 package com.danny.shoppingplatform.controller.member;
 
-import com.danny.shoppingplatform.dto.UserDetailsImpl;
+import com.danny.shoppingplatform.dto.member.UserDetailsImpl;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.service.MemberService;
@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@CrossOrigin
-@RestController
 @RequiredArgsConstructor
+@RestController
 public class MemberController {
     private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
@@ -38,8 +37,7 @@ public class MemberController {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             String token = jwtUtil.generateToken(userDetails.getMember());
 
-            ResponseCookie cookie = ResponseCookie
-                    .from("jwt", token)
+            ResponseCookie cookie = ResponseCookie.from("jwt", token)
                     .httpOnly(true)
                     .secure(false) // 本機開發先 false，正式 HTTPS 改 true
                     .path("/")
@@ -51,8 +49,7 @@ public class MemberController {
             response.put("account", userDetails.getAccount());
             response.put("role", userDetails.getRole());
 
-            return ResponseEntity
-                    .ok()
+            return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(response);
         } catch (BadCredentialsException e) {
@@ -62,16 +59,14 @@ public class MemberController {
 
     @PostMapping("/api/logout")
     public ResponseEntity<?> logout() {
-        ResponseCookie cookie = ResponseCookie
-                .from("jwt", "")
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
                 .maxAge(0)
                 .build();
 
-        return ResponseEntity
-                .ok()
+        return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body("logout success");
     }
@@ -91,5 +86,21 @@ public class MemberController {
         response.put("role", member.getRole());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/register")
+    public ResponseEntity<?> register(@RequestBody HashMap<String, String> map) {
+        String account = map.get("account");
+        String password = map.get("password");
+
+        Member member = memberService.register(account, password);
+
+        if (member == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "帳號已存在");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        return ResponseEntity.ok(member);
     }
 }

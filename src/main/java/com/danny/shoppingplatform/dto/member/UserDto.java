@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.dto;
+package com.danny.shoppingplatform.dto.member;
 
 import lombok.Getter;
 import lombok.Setter;

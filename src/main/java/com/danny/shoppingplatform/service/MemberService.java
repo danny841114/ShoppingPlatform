@@ -1,8 +1,9 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dto.UserDetailsImpl;
+import com.danny.shoppingplatform.dto.member.UserDetailsImpl;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,21 +17,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
-
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     public Member findByAccount(String account) {
         return memberRepository.findByAccount(account);
     }
 
-    public Member findById(Integer id) {
-        return memberRepository.findById(id).orElse(null);
-    }
+//    public Member findById(Integer id) {
+//        return memberRepository.findById(id).orElse(null);
+//    }
 
     public Member register(String account, String password) {
         if (!StringUtils.hasText(account) || !StringUtils.hasText(password)) {

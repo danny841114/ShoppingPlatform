@@ -7,25 +7,19 @@ import com.danny.shoppingplatform.repository.CartRepository;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class CartService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
-
-    public CartService(CartRepository cartRepository,
-                       MemberRepository memberRepository,
-                       ProductRepository productRepository) {
-        this.cartRepository = cartRepository;
-        this.memberRepository = memberRepository;
-        this.productRepository = productRepository;
-    }
 
     public List<Cart> getCartListByMember(Integer memberId) {
         Member member = memberRepository.findById(memberId).orElse(null);

@@ -1,32 +1,35 @@
 package com.danny.shoppingplatform.service;
 
+import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
+import com.danny.shoppingplatform.dto.product.ProductDto;
+import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
+import com.danny.shoppingplatform.dto.product.ProductPageDto;
+import com.danny.shoppingplatform.exception.InternalServerException;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
+import com.danny.shoppingplatform.util.ImageHelper;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.auth.login.AccountNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
-
-    public ProductService(ProductRepository productRepository, MemberRepository memberRepository) {
-        this.productRepository = productRepository;
-        this.memberRepository = memberRepository;
-    }
 
     public Product findById(Integer id) {
         return productRepository.findById(id).orElse(null);
@@ -36,68 +39,96 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Page<Product> findAllByPageable(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public ProductPageDto findAllByPageable(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        return ProductPageDto.builder()
+                .products(productPage.getContent())
+                .totalPages(productPage.getTotalPages())
+                .totalElements(productPage.getTotalElements())
+                .page(pageable.getPageNumber())
+                .size(productPage.getSize())
+                .build();
     }
 
-    public void deleteById(Integer id) {
-        productRepository.deleteById(id);
+    @Transactional
+    public void deleteProduct(Integer id, String currentAccount) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product with id '%s' not found ".formatted(id)));
+
+        if (!product.getMember().getAccount().equals(currentAccount)) {
+            log.error("[deleteProduct] Wrong account from member");
+            throw new AuthorizationDeniedException("Wrong account from member");
+        }
+
+        productRepository.delete(product);
     }
 
-    public Product addProduct(String name, String description,
-                              Integer price,
-                              Integer quantity,
-                              byte[] photo) throws AccountNotFoundException {
-        String account = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByAccount(account);
+    @Transactional
+    public ProductDto addProduct(ProductCreateRequest request, String currentAccount) {
+        byte[] photoByteArray = null;
+        if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
+            try {
+                photoByteArray = ImageHelper.convertImageToByte(request.getPhoto());
+            } catch (IOException e) {
+                log.error("Failed to convert image for new product by user: {}", currentAccount, e);
+                throw new InternalServerException("Upload image failed");
+            }
+        }
+
+        Member member = memberRepository.findByAccount(currentAccount);
         if (member == null) {
-            log.error("Member with account {} not found", account);
-            throw new AccountNotFoundException("Member with account" + account + " not found");
+            log.error("Member with account '{}' not found", currentAccount);
+            throw new EntityNotFoundException("Member with account '%s' not found".formatted(currentAccount));
         }
 
         Product product = new Product();
-        product.setName(name);
-        product.setDescription(description);
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
         product.setMember(member);
-        product.setPrice(price);
-        product.setQuantity(quantity);
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
         product.setDate(new Date());
-        product.setPhoto(photo);
+        product.setPhoto(photoByteArray);
 
-        productRepository.save(product);
-        return product;
+        Product savedProduct = productRepository.save(product);
+
+        return ProductDto.builder()
+                .id(savedProduct.getId())
+                .name(savedProduct.getName())
+                .description(savedProduct.getDescription())
+                .price(savedProduct.getPrice())
+                .quantity(savedProduct.getQuantity())
+                .date(savedProduct.getDate())
+                .photo(savedProduct.getPhoto())
+                .build();
     }
 
-    public Product modifyProduct(Integer id,
-                                 String name,
-                                 String description,
-                                 Integer price,
-                                 Integer quantity,
-                                 byte[] photo) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isEmpty()) {
-            log.error("Product not found");
-            throw new EntityNotFoundException("Product not found");
-        }
+    @Transactional
+    public void modifyProduct(Integer id, ProductModifyRequest request, String currentAccount) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: %s".formatted(id)));
 
-        Product product = productOptional.get();
-
-        Member member = product.getMember();
-        String account = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!member.getAccount().equals(account)) {
+        if (!product.getMember().getAccount().equals(currentAccount)) {
             log.error("Wrong account from member");
             throw new AuthorizationDeniedException("Wrong account from member");
         }
 
-        product.setName(name);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setQuantity(quantity);
-        product.setDate(new Date());
-        if (photo != null) product.setPhoto(photo);
+        if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
+            try {
+                byte[] photoByteArray = ImageHelper.convertImageToByte(request.getPhoto());
+                product.setPhoto(photoByteArray);
+            } catch (IOException e) {
+                throw new InternalServerException("Upload image failed");
+            }
+        }
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
 
         productRepository.save(product);
-        return product;
     }
 
     public List<Product> findByVendorAccount(String account) {
@@ -105,7 +136,7 @@ public class ProductService {
         return productRepository.findByMember(member);
     }
 
-    public Page<Product> findByNameContaining(String keyword, Pageable pageable) {
+    public ProductPageDto findByNameContaining(String keyword, Pageable pageable) {
         // 符合關鍵字的商品
         Page<Product> productsByNameContaining = productRepository.findByNameContaining(keyword, pageable);
 
@@ -130,6 +161,14 @@ public class ProductService {
         int end = Math.min(start + pageable.getPageSize(), mergedList.size());
         List<Product> pageContent = mergedList.subList(start, end);
 
-        return new PageImpl<>(pageContent, pageable, mergedList.size());
+        PageImpl<Product> productPage = new PageImpl<>(pageContent, pageable, mergedList.size());
+
+        return ProductPageDto.builder()
+                .products(productPage.getContent())
+                .totalPages(productPage.getTotalPages())
+                .totalElements(productPage.getTotalElements())
+                .page(pageable.getPageNumber())
+                .size(productPage.getSize())
+                .build();
     }
 }

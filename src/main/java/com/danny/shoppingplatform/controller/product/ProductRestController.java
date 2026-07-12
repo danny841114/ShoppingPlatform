@@ -1,25 +1,23 @@
 package com.danny.shoppingplatform.controller.product;
 
+import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
+import com.danny.shoppingplatform.dto.product.ProductDto;
+import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
+import com.danny.shoppingplatform.dto.product.ProductPageDto;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
-import com.danny.shoppingplatform.util.ImageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.security.auth.login.AccountNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,73 +53,39 @@ public class ProductRestController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<Map<String, Object>> getProducts(@RequestParam(defaultValue = "5") int size,
-                                                           @RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(required = false) String keyword) {
+    public ResponseEntity<ProductPageDto> getProducts(@RequestParam(defaultValue = "5") int size,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage;
+        ProductPageDto pageDto;
 
         if (keyword != null && !keyword.isBlank()) {
-            productPage = productService.findByNameContaining(keyword, pageable);
+            pageDto = productService.findByNameContaining(keyword, pageable);
         } else {
-            productPage = productService.findAllByPageable(pageable);
+            pageDto = productService.findAllByPageable(pageable);
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("products", productPage.getContent());
-        response.put("totalPages", productPage.getTotalPages());
-        response.put("totalElements", productPage.getTotalElements());
-        response.put("page", productPage.getNumber());
-        response.put("size", productPage.getSize());
-        response.put("keyword", keyword);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(pageDto);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(@RequestParam String name,
-                                        @RequestParam String description,
-                                        @RequestParam Integer price,
-                                        @RequestParam Integer quantity,
-                                        @RequestPart(required = false) MultipartFile photo) throws AccountNotFoundException {
-        byte[] photoForUpload;
-        try {
-            photoForUpload = ImageHelper.convertImageToByte(photo);
-        } catch (IOException e) {
-            log.error("Get photo bytes failed", e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Get photo bytes failed"));
-        }
-
-        Product product = productService.addProduct(name, description, price, quantity, photoForUpload);
-        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductCreateRequest request) {
+        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProductDto productDto = productService.addProduct(request, currentAccount);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Integer id,
-                                           @RequestParam String name,
-                                           @RequestParam String description,
-                                           @RequestParam Integer price,
-                                           @RequestParam Integer quantity,
-                                           @RequestPart(required = false) MultipartFile photo) {
-        byte[] photoForUpload;
-        try {
-            photoForUpload = ImageHelper.convertImageToByte(photo);
-        } catch (IOException e) {
-            log.error("Get photo bytes failed", e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Get photo bytes failed"));
-        }
-
-        Product product = productService.modifyProduct(id, name, description, price, quantity, photoForUpload);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @ModelAttribute ProductModifyRequest request) {
+        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
+        productService.modifyProduct(id, request, currentAccount);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
-        productService.deleteById(id);
+        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
+        productService.deleteProduct(id, currentAccount);
         return ResponseEntity.noContent().build();
     }
 }
