@@ -1,10 +1,12 @@
 package com.danny.shoppingplatform.controller.member;
 
-import com.danny.shoppingplatform.dto.member.UserDetailsImpl;
+import com.danny.shoppingplatform.dto.member.*;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -15,9 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RequiredArgsConstructor
 @RestController
 public class MemberController {
@@ -26,9 +25,9 @@ public class MemberController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/api/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-        String account = request.get("account");
-        String password = request.get("password");
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        String account = request.getAccount();
+        String password = request.getPassword();
 
         try {
             Authentication authenticationToken = new UsernamePasswordAuthenticationToken(account, password);
@@ -45,9 +44,10 @@ public class MemberController {
                     .sameSite("Lax")
                     .build();
 
-            Map<String, String> response = new HashMap<>();
-            response.put("account", userDetails.getAccount());
-            response.put("role", userDetails.getRole());
+            FetchMeResponse response = FetchMeResponse.builder()
+                    .account(userDetails.getAccount())
+                    .role(userDetails.getRole())
+                    .build();
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -81,26 +81,17 @@ public class MemberController {
 
         Member member = memberService.findByAccount(authentication.getName());
 
-        Map<String, String> response = new HashMap<>();
-        response.put("account", member.getAccount());
-        response.put("role", member.getRole());
+        FetchMeResponse response = FetchMeResponse.builder()
+                .account(member.getAccount())
+                .role(member.getRole())
+                .build();
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/api/register")
-    public ResponseEntity<?> register(@RequestBody HashMap<String, String> map) {
-        String account = map.get("account");
-        String password = map.get("password");
-
-        Member member = memberService.register(account, password);
-
-        if (member == null) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "帳號已存在");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.ok(member);
+    public ResponseEntity<MemberDto> register(@Valid @RequestBody RegisterRequest request) throws BadRequestException {
+        MemberDto memberDto = memberService.register(request.getAccount(), request.getPassword());
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberDto);
     }
 }

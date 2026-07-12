@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,7 +31,7 @@ public class Member {
     private String name;
 
     @Column(name = "birthdate")
-    private Date birthdate;
+    private LocalDateTime birthdate;
 
     @Column(name = "email")
     private String email;

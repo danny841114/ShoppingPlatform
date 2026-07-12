@@ -1,11 +1,11 @@
 package com.danny.shoppingplatform.controller.product;
 
+import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
 import com.danny.shoppingplatform.dto.product.ProductDto;
 import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
 import com.danny.shoppingplatform.dto.product.ProductPageDto;
 import com.danny.shoppingplatform.model.Product;
-import com.danny.shoppingplatform.service.MemberService;
 import com.danny.shoppingplatform.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,11 +24,10 @@ import java.util.List;
 @RequestMapping("/api/product")
 public class ProductRestController {
     private final ProductService productService;
-    private final MemberService memberService;
 
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getProductImage(@PathVariable Integer id) {
-        byte[] photo = productService.findById(id).getPhoto();
+    public ResponseEntity<byte[]> getProductImageById(@PathVariable Integer id) {
+        byte[] photo = productService.getProductById(id).getPhoto();
         return ResponseEntity.ok(photo);
     }
 
@@ -40,16 +38,15 @@ public class ProductRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable Integer id) {
-        Product product = productService.findById(id);
+    public ResponseEntity<Product> getProductById(@PathVariable Integer id) {
+        Product product = productService.getProductById(id);
         return ResponseEntity.ok(product);
     }
 
     @GetMapping("/vendor")
-    public ResponseEntity<List<Product>> getVendorProducts() {
-        String account = memberService.getLoginMember().getAccount();
-        List<Product> productList = productService.findByVendorAccount(account);
-        return ResponseEntity.ok(productList);
+    public ResponseEntity<List<ProductDto>> getProductsByVendor(@CurrentAccount String account) {
+        List<ProductDto> products = productService.getProductsByVendor(account);
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/filter")
@@ -69,23 +66,20 @@ public class ProductRestController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductCreateRequest request) {
-        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
-        ProductDto productDto = productService.addProduct(request, currentAccount);
+    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductCreateRequest request, @CurrentAccount String account) {
+        ProductDto productDto = productService.addProduct(request, account);
         return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @ModelAttribute ProductModifyRequest request) {
-        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
-        productService.modifyProduct(id, request, currentAccount);
+    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @ModelAttribute ProductModifyRequest request, @CurrentAccount String account) {
+        productService.modifyProduct(id, request, account);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
-        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
-        productService.deleteProduct(id, currentAccount);
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer id, @CurrentAccount String account) {
+        productService.deleteProduct(id, account);
         return ResponseEntity.noContent().build();
     }
 }

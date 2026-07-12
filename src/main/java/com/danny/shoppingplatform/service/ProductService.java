@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.danny.shoppingplatform.dto.product.ProductDto.fromEntity;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -31,7 +34,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
-    public Product findById(Integer id) {
+    public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
 
@@ -65,22 +68,19 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDto addProduct(ProductCreateRequest request, String currentAccount) {
+    public ProductDto addProduct(ProductCreateRequest request, String account) {
         byte[] photoByteArray = null;
         if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
             try {
                 photoByteArray = ImageHelper.convertImageToByte(request.getPhoto());
             } catch (IOException e) {
-                log.error("Failed to convert image for new product by user: {}", currentAccount, e);
+                log.error("Failed to convert image for new product by user: {}", account, e);
                 throw new InternalServerException("Upload image failed");
             }
         }
 
-        Member member = memberRepository.findByAccount(currentAccount);
-        if (member == null) {
-            log.error("Member with account '{}' not found", currentAccount);
-            throw new EntityNotFoundException("Member with account '%s' not found".formatted(currentAccount));
-        }
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
 
         Product product = new Product();
         product.setName(request.getName());
@@ -93,23 +93,18 @@ public class ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        return ProductDto.builder()
-                .id(savedProduct.getId())
-                .name(savedProduct.getName())
-                .description(savedProduct.getDescription())
-                .price(savedProduct.getPrice())
-                .quantity(savedProduct.getQuantity())
-                .date(savedProduct.getDate())
-                .photo(savedProduct.getPhoto())
-                .build();
+        // avoid N+1 query problem
+        Integer vendorId = savedProduct.getMember().getId();
+
+        return fromEntity(savedProduct, vendorId);
     }
 
     @Transactional
-    public void modifyProduct(Integer id, ProductModifyRequest request, String currentAccount) {
+    public void modifyProduct(Integer id, ProductModifyRequest request, String account) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: %s".formatted(id)));
 
-        if (!product.getMember().getAccount().equals(currentAccount)) {
+        if (!product.getMember().getAccount().equals(account)) {
             log.error("Wrong account from member");
             throw new AuthorizationDeniedException("Wrong account from member");
         }
@@ -131,9 +126,19 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public List<Product> findByVendorAccount(String account) {
-        Member member = memberRepository.findByAccount(account);
-        return productRepository.findByMember(member);
+    @Transactional
+    public List<ProductDto> getProductsByVendor(String account) {
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+
+        List<Product> products = productRepository.findByMember(member);
+
+        // avoid N+1 query problem
+        Integer vendorId = member.getId();
+
+        return products.stream()
+                .map(product -> fromEntity(product, vendorId))
+                .toList();
     }
 
     public ProductPageDto findByNameContaining(String keyword, Pageable pageable) {

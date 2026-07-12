@@ -2,7 +2,6 @@ package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;
 import com.danny.shoppingplatform.dto.cart.CartDto;
-import com.danny.shoppingplatform.exception.custom.CustomAccountNotFoundException;
 import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
@@ -11,6 +10,7 @@ import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +18,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.danny.shoppingplatform.dto.cart.CartDto.fromEntity;
 
 @RequiredArgsConstructor
 @Service
@@ -36,11 +38,9 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto addProductIntoCart(Integer productId, CartAddRequest request, String currentAccount) {
-        Member member = memberRepository.findByAccount(currentAccount);
-        if (member == null) {
-            throw new CustomAccountNotFoundException("會員不存在");
-        }
+    public CartDto addProductIntoCart(Integer productId, CartAddRequest request, String account) {
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("商品不存在"));
@@ -54,11 +54,10 @@ public class CartService {
             throw new IllegalArgumentException("加入購物車的數量必須大於 0");
         }
 
-        Instant now = Instant.now();
         Cart cart = cartRepository.findByMemberAndProduct(member, product)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
-                    newCart.setCreatedDate(now);
+                    newCart.setCreatedDate(Instant.now());
                     newCart.setQuantity(0);
                     newCart.setMember(member);
                     newCart.setProduct(product);
@@ -74,13 +73,7 @@ public class CartService {
 
         Cart savedCart = cartRepository.save(cart);
 
-        return CartDto.builder()
-                .id(savedCart.getId())
-                .quantity(savedCart.getQuantity())
-                .memberId(savedCart.getMember().getId())
-                .productId(savedCart.getProduct().getId())
-                .createdDate(now)
-                .build();
+        return fromEntity(savedCart);
     }
 
     public Cart increaseProductQuantity(Integer cartId) {

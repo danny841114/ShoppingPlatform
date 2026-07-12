@@ -5,6 +5,7 @@ import com.danny.shoppingplatform.exception.custom.CustomAccountNotFoundExceptio
 import com.danny.shoppingplatform.exception.custom.InternalServerException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
         log.error("Unknown Server Error", ex);
 
         CustomErrorResponse error = CustomErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value()) // 500
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("UNKNOWN_SERVER_ERROR")
                 .message("Unknown server error")
                 .timestamp(LocalDateTime.now())
@@ -60,6 +61,17 @@ public class GlobalExceptionHandler {
         CustomErrorResponse customErrorResponse = CustomErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .code("RESOURCE_NOT_FOUND")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.badRequest().body(customErrorResponse);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CustomErrorResponse> handleIllegalArgument(BadRequestException ex) {
+        CustomErrorResponse customErrorResponse = CustomErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("BAD_REQUEST")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();

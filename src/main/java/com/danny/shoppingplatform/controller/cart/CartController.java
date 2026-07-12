@@ -1,14 +1,13 @@
 package com.danny.shoppingplatform.controller.cart;
 
+import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;
 import com.danny.shoppingplatform.dto.cart.CartDto;
 import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.service.CartService;
-import com.danny.shoppingplatform.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cart")
 public class CartController {
     private final CartService cartService;
-    private final MemberService memberService;
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProductFromCart(@PathVariable Integer id) {
@@ -37,9 +35,10 @@ public class CartController {
     }
 
     @PostMapping("/product/{productId}/add")
-    public ResponseEntity<CartDto> addProductIntoCart(@PathVariable Integer productId, @RequestBody CartAddRequest request) {
-        String currentAccount = SecurityContextHolder.getContext().getAuthentication().getName();
-        CartDto cartDto = cartService.addProductIntoCart(productId, request, currentAccount);
+    public ResponseEntity<CartDto> addProductIntoCart(@PathVariable Integer productId,
+                                                      @RequestBody CartAddRequest request,
+                                                      @CurrentAccount String account) {
+        CartDto cartDto = cartService.addProductIntoCart(productId, request, account);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartDto);
     }
 }
