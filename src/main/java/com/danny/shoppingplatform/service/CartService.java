@@ -28,7 +28,7 @@ public class CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
 
-    public List<Cart> getCartListByMember(Integer memberId) {
+    public List<Cart> getCartsByMember(Integer memberId) {
         Member member = memberRepository.findById(memberId).orElse(null);
         return cartRepository.findByMember(member);
     }

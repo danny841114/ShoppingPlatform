@@ -5,7 +5,6 @@ import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
 import com.danny.shoppingplatform.dto.product.ProductDto;
 import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
 import com.danny.shoppingplatform.dto.product.ProductPageDto;
-import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,20 +26,14 @@ public class ProductController {
 
     @GetMapping(value = "/{id}/photo", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<byte[]> getProductImageById(@PathVariable Integer id) {
-        byte[] photo = productService.getProductById(id).getPhoto();
+        byte[] photo = productService.getProductPhotoById(id);
         return ResponseEntity.ok(photo);
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<Product>> getProducts() {
-        List<Product> productList = productService.findAll();
-        return ResponseEntity.ok(productList);
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Integer id) {
-        Product product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Integer id) {
+        ProductDto productDto = productService.getProductById(id);
+        return ResponseEntity.ok(productDto);
     }
 
     @GetMapping("/vendor")
@@ -54,14 +47,7 @@ public class ProductController {
                                                       @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
-        ProductPageDto pageDto;
-
-        if (keyword != null && !keyword.isBlank()) {
-            pageDto = productService.findByNameContaining(keyword, pageable);
-        } else {
-            pageDto = productService.findAllByPageable(pageable);
-        }
-
+        ProductPageDto pageDto = productService.getProducts(pageable,keyword);
         return ResponseEntity.ok(pageDto);
     }
 

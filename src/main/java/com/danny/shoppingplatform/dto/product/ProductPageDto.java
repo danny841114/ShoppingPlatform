@@ -22,14 +22,14 @@ public class ProductPageDto {
     private Integer size;
     private String keyword;
 
-    public static ProductPageDto fromEntity(Page<Product> productPage, Pageable pageable) {
+    public static ProductPageDto fromEntity(Page<Product> productPage) {
         if (productPage == null) return null;
 
         return ProductPageDto.builder()
                 .products(productPage.getContent())
                 .totalPages(productPage.getTotalPages())
                 .totalElements(productPage.getTotalElements())
-                .page(pageable.getPageNumber())
+                .page(productPage.getPageable().getPageNumber())
                 .size(productPage.getSize())
                 .build();
     }

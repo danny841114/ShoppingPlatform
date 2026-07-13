@@ -1,12 +1,15 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dto.member.MemberDto;
-import com.danny.shoppingplatform.dto.member.UserDetailsImpl;
+import com.danny.shoppingplatform.dto.member.*;
+import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,20 +20,28 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.danny.shoppingplatform.dto.member.MemberDto.fromEntity;
+import static com.danny.shoppingplatform.dto.member.UserInfo.generateUserInfo;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public Member findByAccount(String account) {
-        return memberRepository.findByAccount(account)
+    public MemberDto getMemberByAccount(String account) {
+        Member member = memberRepository.findByAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+
+        return fromEntity(member);
     }
 
     @Transactional
-    public MemberDto register(String account, String password) throws BadRequestException {
+    public MemberDto register(RegisterRequest request) throws BadRequestException {
+        String account = request.getAccount();
+        String password = request.getPassword();
+
         Optional<Member> memberByAccount = memberRepository.findByAccount(account);
         if (memberByAccount.isPresent()) {
             throw new BadRequestException("Account '%s' already exists".formatted(account));
@@ -46,18 +57,21 @@ public class MemberService implements UserDetailsService {
         return fromEntity(savedMember);
     }
 
-    public Member login(String account, String password) {
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+    public LoginResult login(LoginRequest request) {
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
 
-        if (password != null) {
-            String realPassword = member.getPassword();
-            if (password.equals(realPassword)) {
-                return member;
-            }
-        }
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        return null;
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        String token = jwtUtil.generateToken(userDetails.getMember());
+
+        UserInfo userInfo = generateUserInfo(userDetails.getAccount(), userDetails.getRole());
+
+        return LoginResult.builder()
+                .userInfo(userInfo)
+                .token(token)
+                .build();
     }
 
     public void upgradeRole(String account) {

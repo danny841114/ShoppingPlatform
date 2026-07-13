@@ -14,7 +14,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -23,35 +22,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Stream;
-
-import static com.danny.shoppingplatform.dto.product.ProductDto.fromEntity;
 
 @Slf4j
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
-    public Product getProductById(Integer id) {
-        return productRepository.findById(id).orElse(null);
+    public ProductDto getProductById(Integer id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        return ProductDto.fromEntity(product, product.getMember().getId());
     }
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
-    }
-
-    public ProductPageDto findAllByPageable(Pageable pageable) {
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        return ProductPageDto.builder()
-                .products(productPage.getContent())
-                .totalPages(productPage.getTotalPages())
-                .totalElements(productPage.getTotalElements())
-                .page(pageable.getPageNumber())
-                .size(productPage.getSize())
-                .build();
+    public byte[] getProductPhotoById(Integer id) {
+        return productRepository.findPhotoById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product photo not found"));
     }
 
     @Transactional
@@ -96,7 +84,7 @@ public class ProductService {
         // avoid N+1 query problem
         Integer vendorId = savedProduct.getMember().getId();
 
-        return fromEntity(savedProduct, vendorId);
+        return ProductDto.fromEntity(savedProduct, vendorId);
     }
 
     @Transactional
@@ -126,7 +114,6 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    @Transactional
     public List<ProductDto> getProductsByVendor(String account) {
         Member member = memberRepository.findByAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
@@ -137,43 +124,18 @@ public class ProductService {
         Integer vendorId = member.getId();
 
         return products.stream()
-                .map(product -> fromEntity(product, vendorId))
+                .map(product -> ProductDto.fromEntity(product, vendorId))
                 .toList();
     }
 
-    public ProductPageDto findByNameContaining(String keyword, Pageable pageable) {
-        // 符合關鍵字的商品
-        Page<Product> productsByNameContaining = productRepository.findByNameContaining(keyword, pageable);
-
-        // 符合關鍵字的使用者
-        Set<Product> productsByMember = new HashSet<>();
-        List<Member> memberList = memberRepository.findByAccountContaining(keyword);
-        for (Member member : memberList) {
-            List<Product> products = productRepository.findByMember(member);
-            productsByMember.addAll(products);
+    public ProductPageDto getProducts(Pageable pageable, String keyword) {
+        Page<Product> productPage;
+        if (keyword != null && !keyword.isBlank()) {
+            productPage = productRepository.findByNameOrMemberAccountContaining(keyword, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
         }
 
-        // 合併並去掉重複
-        List<Product> mergedList = Stream
-                .concat(productsByNameContaining.stream(), productsByMember.stream())
-                .distinct()
-                .toList();
-
-        // 處理分頁
-        // offset = pageNumber * pageSize (index 從 0 開始)
-        // pageNumber 從 0 開始
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), mergedList.size());
-        List<Product> pageContent = mergedList.subList(start, end);
-
-        PageImpl<Product> productPage = new PageImpl<>(pageContent, pageable, mergedList.size());
-
-        return ProductPageDto.builder()
-                .products(productPage.getContent())
-                .totalPages(productPage.getTotalPages())
-                .totalElements(productPage.getTotalElements())
-                .page(pageable.getPageNumber())
-                .size(productPage.getSize())
-                .build();
+        return ProductPageDto.fromEntity(productPage);
     }
 }

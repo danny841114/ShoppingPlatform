@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FetchMeResponse {
-    private String account;
-    private String role;
+public class LoginResult {
+    private UserInfo userInfo;
+    private String token;
 }
