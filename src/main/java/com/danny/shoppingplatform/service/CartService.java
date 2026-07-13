@@ -10,6 +10,7 @@ import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.danny.shoppingplatform.dto.cart.CartDto.fromEntity;
 
@@ -28,30 +28,44 @@ public class CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
 
-    public List<Cart> getCartsByMember(Integer memberId) {
-        Member member = memberRepository.findById(memberId).orElse(null);
-        return cartRepository.findByMember(member);
-    }
+    public List<CartDto> getCartsByMember(String account) {
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
 
-    public void deleteProductFromCart(Integer cartId) {
-        cartRepository.deleteById(cartId);
+        List<Cart> carts = cartRepository.findByMember(member);
+
+        return carts.stream()
+                .map(CartDto::fromEntity)
+                .toList();
     }
 
     @Transactional
-    public CartDto addProductIntoCart(Integer productId, CartAddRequest request, String account) {
+    public void removeCartItem(Integer cartId, String account) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+
+        if (!Objects.equals(account, cart.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not remove other's cart item");
+        }
+
+        cartRepository.delete(cart);
+    }
+
+    @Transactional
+    public CartDto addCartItem(Integer productId, CartAddRequest request, String account) {
         Member member = memberRepository.findByAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("商品不存在"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
-        if (!Objects.equals(member.getId(), product.getMember().getId())) {
-            throw new IllegalArgumentException("不能將自己的商品加入購物車");
+        if (!Objects.equals(account, product.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not add own product into cart");
         }
 
         Integer inputQuantity = request.getQuantity();
         if (inputQuantity == null || inputQuantity <= 0) {
-            throw new IllegalArgumentException("加入購物車的數量必須大於 0");
+            throw new IllegalArgumentException("Quantity must be more than 0");
         }
 
         Cart cart = cartRepository.findByMemberAndProduct(member, product)
@@ -66,7 +80,7 @@ public class CartService {
 
         int targetQuantity = cart.getQuantity() + inputQuantity;
         if (targetQuantity > product.getQuantity()) {
-            throw new IllegalArgumentException("商品庫存不足，無法加入更多數量");
+            throw new IllegalArgumentException("Product quantity is not enough");
         } else {
             cart.setQuantity(targetQuantity);
         }
@@ -76,33 +90,37 @@ public class CartService {
         return fromEntity(savedCart);
     }
 
-    public Cart increaseProductQuantity(Integer cartId) {
-        Optional<Cart> cartOptional = cartRepository.findById(cartId);
-        if (cartOptional.isEmpty()) {
-            throw new EntityNotFoundException();
+    @Transactional
+    public CartDto increaseProductQuantity(Integer cartId, String account) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+
+        if (!Objects.equals(account, cart.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not handle other's cart item");
         }
 
-        Cart cart = cartOptional.get();
         if (cart.getQuantity() + 1 <= cart.getProduct().getQuantity()) {
             cart.setQuantity(cart.getQuantity() + 1);
             cartRepository.save(cart);
         }
 
-        return cart;
+        return fromEntity(cart);
     }
 
-    public Cart decreaseProductQuantity(Integer cartId) {
-        Optional<Cart> cartOptional = cartRepository.findById(cartId);
-        if (cartOptional.isEmpty()) {
-            throw new EntityNotFoundException();
+    @Transactional
+    public CartDto decreaseProductQuantity(Integer cartId, String account) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+
+        if (!Objects.equals(account, cart.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not handle other's cart item");
         }
 
-        Cart cart = cartOptional.get();
         if (cart.getQuantity() > 1) {
             cart.setQuantity(cart.getQuantity() - 1);
             cartRepository.save(cart);
         }
 
-        return cart;
+        return fromEntity(cart);
     }
 }

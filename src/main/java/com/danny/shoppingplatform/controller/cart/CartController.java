@@ -3,7 +3,6 @@ package com.danny.shoppingplatform.controller.cart;
 import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;
 import com.danny.shoppingplatform.dto.cart.CartDto;
-import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,28 +16,28 @@ public class CartController {
     private final CartService cartService;
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProductFromCart(@PathVariable Integer id) {
-        cartService.deleteProductFromCart(id);
+    public ResponseEntity<Void> removeCartItem(@PathVariable Integer id, @CurrentAccount String account) {
+        cartService.removeCartItem(id, account);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/quantity/increase")
-    public ResponseEntity<?> increaseProductQuantity(@PathVariable Integer id) {
-        Cart cart = cartService.increaseProductQuantity(id);
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<CartDto> increaseProductQuantity(@PathVariable Integer id, @CurrentAccount String account) {
+        CartDto cartDto = cartService.increaseProductQuantity(id, account);
+        return ResponseEntity.ok(cartDto);
     }
 
     @PutMapping("/{id}/quantity/decrease")
-    public ResponseEntity<?> decreaseProductQuantity(@PathVariable Integer id) {
-        Cart cart = cartService.decreaseProductQuantity(id);
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<CartDto> decreaseProductQuantity(@PathVariable Integer id, @CurrentAccount String account) {
+        CartDto cartDto = cartService.decreaseProductQuantity(id, account);
+        return ResponseEntity.ok(cartDto);
     }
 
     @PostMapping("/product/{productId}/add")
-    public ResponseEntity<CartDto> addProductIntoCart(@PathVariable Integer productId,
-                                                      @RequestBody CartAddRequest request,
-                                                      @CurrentAccount String account) {
-        CartDto cartDto = cartService.addProductIntoCart(productId, request, account);
+    public ResponseEntity<CartDto> addCartItem(@PathVariable Integer productId,
+                                               @RequestBody CartAddRequest request,
+                                               @CurrentAccount String account) {
+        CartDto cartDto = cartService.addCartItem(productId, request, account);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartDto);
     }
 }
