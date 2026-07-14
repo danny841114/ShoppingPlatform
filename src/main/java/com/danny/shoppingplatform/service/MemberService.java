@@ -7,6 +7,8 @@ import com.danny.shoppingplatform.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,12 +25,17 @@ import static com.danny.shoppingplatform.dto.member.MemberDto.fromEntity;
 import static com.danny.shoppingplatform.dto.member.UserInfo.generateUserInfo;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class MemberService implements UserDetailsService {
-    private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
+
+    public MemberService(@Lazy AuthenticationManager authenticationManager, JwtUtil jwtUtil, MemberRepository memberRepository) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        this.memberRepository = memberRepository;
+    }
 
     public MemberDto getMemberByAccount(String account) {
         Member member = memberRepository.findByAccount(account)

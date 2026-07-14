@@ -18,10 +18,10 @@ public class Member {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "account")
+    @Column(name = "account", unique = true, nullable = false)
     private String account;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "role")
@@ -36,7 +36,7 @@ public class Member {
     @Column(name = "email")
     private String email;
 
-    @Column(name="photo")
+    @Column(name = "photo")
     private byte[] photo;
 
     @OneToMany(mappedBy = "member")
