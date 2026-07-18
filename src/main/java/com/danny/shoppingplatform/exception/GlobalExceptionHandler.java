@@ -20,107 +20,107 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(InternalServerException.class)
-    public ResponseEntity<CustomErrorResponse> handleInternalServerException(InternalServerException ex) {
+    public ResponseEntity<CustomErrorResponse> handleSystemError(InternalServerException ex) {
         log.error("Interval server error: ", ex);
 
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("SYSTEM_ERROR")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.internalServerError().body(error);
+        return ResponseEntity.internalServerError().body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomErrorResponse> handleUncaughtException(Exception ex) {
+    public ResponseEntity<CustomErrorResponse> handleUncaughtError(Exception ex) {
         log.error("Unknown Server Error", ex);
 
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("UNKNOWN_SERVER_ERROR")
                 .message("Unknown server error")
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.internalServerError().body(error);
+        return ResponseEntity.internalServerError().body(response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CustomErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        CustomErrorResponse customErrorResponse = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .code("INVALID_PARAMETER")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.badRequest().body(customErrorResponse);
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleNotFound(EntityNotFoundException ex) {
-        CustomErrorResponse customErrorResponse = CustomErrorResponse.builder()
+    public ResponseEntity<CustomErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .code("RESOURCE_NOT_FOUND")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.badRequest().body(customErrorResponse);
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<CustomErrorResponse> handleIllegalArgument(BadRequestException ex) {
-        CustomErrorResponse customErrorResponse = CustomErrorResponse.builder()
+    public ResponseEntity<CustomErrorResponse> handleBadRequest(BadRequestException ex) {
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .code("BAD_REQUEST")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.badRequest().body(customErrorResponse);
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleAccountNotFound(AccountNotFoundException ex) {
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .code("ACCOUNT_NOT_FOUND")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(CustomAccountNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleAccountNotFound(CustomAccountNotFoundException ex) {
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .code("ACCOUNT_NOT_FOUND")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<CustomErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .code("BAD_CREDENTIAL")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<CustomErrorResponse> handleAuthorization(AccessDeniedException ex) {
-        CustomErrorResponse error = CustomErrorResponse.builder()
+        CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.FORBIDDEN.value())
                 .code("FORBIDDEN")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 }
