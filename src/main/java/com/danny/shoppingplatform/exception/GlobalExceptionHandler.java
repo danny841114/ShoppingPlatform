@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -74,6 +75,17 @@ public class GlobalExceptionHandler {
         CustomErrorResponse response = CustomErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .code("BAD_REQUEST")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<CustomErrorResponse> handleNotValidArgument(MethodArgumentNotValidException ex) {
+        CustomErrorResponse response = CustomErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("ARGUMENT_NOT_VALID")
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();

@@ -42,8 +42,8 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/filter")
-    public ResponseEntity<ProductPageDto> getProducts(@RequestParam(defaultValue = "5") int size,
+    @GetMapping
+    public ResponseEntity<ProductPageDto> getProducts(@RequestParam(defaultValue = "10") int size,
                                                       @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
