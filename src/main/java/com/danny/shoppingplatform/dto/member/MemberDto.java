@@ -6,18 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberDto {
-    private Integer id;
+    private Long id;
     private String account;
     private String role;
     private String name;
-    private LocalDateTime birthdate;
+    private LocalDate birthdate;
     private String email;
     private byte[] photo;
 

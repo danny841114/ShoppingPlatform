@@ -13,10 +13,10 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartDto {
-    private Integer id;
+    private Long id;
     private Integer quantity;
-    private Integer memberId;
-    private Integer productId;
+    private Long memberId;
+    private Long productId;
     private Instant createdDate;
 
     public static CartDto fromEntity(Cart cart) {

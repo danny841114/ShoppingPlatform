@@ -1,50 +1,51 @@
 package com.danny.shoppingplatform.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@Table(name="product")
+@Table(name = "product")
 public class Product {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="description")
+    @Column(name = "description")
     private String description;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name="vendor_id")
-    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id")
+    @JsonBackReference
     private Member member;
 
-    @Column(name="price")
-    private Integer price;
+    @Column(name = "price")
+    private BigDecimal price;
 
-    @Column(name="quantity")
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name="date")
-    private Date date;
+    @Column(name = "date")
+    private Instant date;
 
-    @Column(name="photo")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "photo")
     private byte[] photo;
 
     @OneToMany(mappedBy = "product")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Cart> cartList;
 }

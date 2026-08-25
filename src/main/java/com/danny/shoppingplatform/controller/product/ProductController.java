@@ -31,7 +31,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Integer id) {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
         ProductDto productDto = productService.getProductById(id);
         return ResponseEntity.ok(productDto);
     }
@@ -58,13 +58,13 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Integer id, @ModelAttribute ProductModifyRequest request, @CurrentAccount String account) {
+    public ResponseEntity<?> modifyProduct(@PathVariable Long id, @ModelAttribute ProductModifyRequest request, @CurrentAccount String account) {
         productService.modifyProduct(id, request, account);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Integer id, @CurrentAccount String account) {
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id, @CurrentAccount String account) {
         productService.deleteProduct(id, account);
         return ResponseEntity.noContent().build();
     }

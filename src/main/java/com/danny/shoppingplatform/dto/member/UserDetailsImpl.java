@@ -37,7 +37,7 @@ public class UserDetailsImpl implements UserDetails {
         return member.getRole();
     }
 
-    public int getId() {
+    public Long getId() {
         return member.getId();
     }
 }

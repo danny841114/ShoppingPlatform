@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -31,7 +32,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
-    public ProductDto getProductById(Integer id) {
+    public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         return ProductDto.fromEntity(product, product.getMember().getId());
@@ -43,7 +44,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Integer id, String currentAccount) {
+    public void deleteProduct(Long id, String currentAccount) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product with id '%s' not found ".formatted(id)));
 
@@ -76,19 +77,19 @@ public class ProductService {
         product.setMember(member);
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
-        product.setDate(new Date());
+        product.setDate(Instant.now());
         product.setPhoto(photoByteArray);
 
         Product savedProduct = productRepository.save(product);
 
         // avoid N+1 query problem
-        Integer vendorId = savedProduct.getMember().getId();
+        Long vendorId = savedProduct.getMember().getId();
 
         return ProductDto.fromEntity(savedProduct, vendorId);
     }
 
     @Transactional
-    public void modifyProduct(Integer id, ProductModifyRequest request, String account) {
+    public void modifyProduct(Long id, ProductModifyRequest request, String account) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: %s".formatted(id)));
 
@@ -121,7 +122,7 @@ public class ProductService {
         List<Product> products = productRepository.findByMember(member);
 
         // avoid N+1 query problem
-        Integer vendorId = member.getId();
+        Long vendorId = member.getId();
 
         return products.stream()
                 .map(product -> ProductDto.fromEntity(product, vendorId))

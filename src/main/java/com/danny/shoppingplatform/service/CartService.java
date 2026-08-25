@@ -40,7 +40,7 @@ public class CartService {
     }
 
     @Transactional
-    public void removeCartItem(Integer cartId, String account) {
+    public void removeCartItem(Long cartId, String account) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 
@@ -52,7 +52,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto addCartItem(Integer productId, CartAddRequest request, String account) {
+    public CartDto addCartItem(Long productId, CartAddRequest request, String account) {
         Member member = memberRepository.findByAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
 
@@ -91,7 +91,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto increaseProductQuantity(Integer cartId, String account) {
+    public CartDto increaseProductQuantity(Long cartId, String account) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 
@@ -108,7 +108,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto decreaseProductQuantity(Integer cartId, String account) {
+    public CartDto decreaseProductQuantity(Long cartId, String account) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 

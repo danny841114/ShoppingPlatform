@@ -16,25 +16,25 @@ public class CartController {
     private final CartService cartService;
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeCartItem(@PathVariable Integer id, @CurrentAccount String account) {
+    public ResponseEntity<Void> removeCartItem(@PathVariable Long id, @CurrentAccount String account) {
         cartService.removeCartItem(id, account);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/quantity/increase")
-    public ResponseEntity<CartDto> increaseProductQuantity(@PathVariable Integer id, @CurrentAccount String account) {
+    public ResponseEntity<CartDto> increaseProductQuantity(@PathVariable Long id, @CurrentAccount String account) {
         CartDto cartDto = cartService.increaseProductQuantity(id, account);
         return ResponseEntity.ok(cartDto);
     }
 
     @PutMapping("/{id}/quantity/decrease")
-    public ResponseEntity<CartDto> decreaseProductQuantity(@PathVariable Integer id, @CurrentAccount String account) {
+    public ResponseEntity<CartDto> decreaseProductQuantity(@PathVariable Long id, @CurrentAccount String account) {
         CartDto cartDto = cartService.decreaseProductQuantity(id, account);
         return ResponseEntity.ok(cartDto);
     }
 
     @PostMapping("/product/{productId}/add")
-    public ResponseEntity<CartDto> addCartItem(@PathVariable Integer productId,
+    public ResponseEntity<CartDto> addCartItem(@PathVariable Long productId,
                                                @RequestBody CartAddRequest request,
                                                @CurrentAccount String account) {
         CartDto cartDto = cartService.addCartItem(productId, request, account);

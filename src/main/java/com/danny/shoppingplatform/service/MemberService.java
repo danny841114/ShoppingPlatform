@@ -4,10 +4,8 @@ import com.danny.shoppingplatform.dto.member.*;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.model.Member;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.danny.shoppingplatform.dto.member.MemberDto.fromEntity;
@@ -93,7 +91,7 @@ public class MemberService implements UserDetailsService {
 
     public void modifyProfile(String account,
                               String name,
-                              LocalDateTime birthdate,
+                              LocalDate birthdate,
                               String email,
                               byte[] photo) {
         Member member = memberRepository.findByAccount(account)

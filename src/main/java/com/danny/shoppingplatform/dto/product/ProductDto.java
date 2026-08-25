@@ -3,6 +3,8 @@ package com.danny.shoppingplatform.dto.product;
 import com.danny.shoppingplatform.model.Product;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -10,16 +12,16 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDto {
-    private Integer id;
+    private Long id;
     private String name;
-    private Integer vendorId;
+    private Long vendorId;
     private String description;
-    private Integer price;
+    private BigDecimal price;
     private Integer quantity;
-    private Date date;
+    private Instant date;
     private byte[] photo;
 
-    public static ProductDto fromEntity(Product product, Integer vendorId) {
+    public static ProductDto fromEntity(Product product, Long vendorId) {
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())

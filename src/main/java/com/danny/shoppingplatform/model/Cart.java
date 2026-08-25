@@ -1,6 +1,6 @@
 package com.danny.shoppingplatform.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,26 +10,28 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-@Table(name = "cart")
+@Table(name = "cart",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id", "product_id"})}
+)
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
-    @Column(name="created_date")
+    @Column(name = "created_date")
     private Instant createdDate;
 
-    @Column(name="quantity")
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @ManyToOne
-    @JoinColumn(name="member_id")
-    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    @JsonBackReference
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name="product_id")
-    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    @JsonBackReference
     private Product product;
 }

@@ -1,11 +1,11 @@
 package com.danny.shoppingplatform.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,7 +16,7 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "account", unique = true, nullable = false)
     private String account;
@@ -31,19 +31,21 @@ public class Member {
     private String name;
 
     @Column(name = "birthdate")
-    private LocalDateTime birthdate;
+    private LocalDate birthdate;
 
     @Column(name = "email")
     private String email;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "photo")
     private byte[] photo;
 
     @OneToMany(mappedBy = "member")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Product> productList;
 
     @OneToMany(mappedBy = "member")
-    @JsonBackReference
+    @JsonManagedReference
     private List<Cart> cartList;
 }
