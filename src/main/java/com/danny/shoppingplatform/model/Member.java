@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,11 +42,13 @@ public class Member {
     @Column(name = "photo")
     private byte[] photo;
 
-    @OneToMany(mappedBy = "member")
+    @JsonIgnore
     @JsonManagedReference
+    @OneToMany(mappedBy = "member")
     private List<Product> productList;
 
-    @OneToMany(mappedBy = "member")
+    @JsonIgnore
     @JsonManagedReference
+    @OneToMany(mappedBy = "member")
     private List<Cart> cartList;
 }

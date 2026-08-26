@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductPageDto {
-    private List<Product> products;
+    private List<ProductDto> products;
     private Integer totalPages;
     private Long totalElements;
     private Integer page;
@@ -25,8 +25,13 @@ public class ProductPageDto {
     public static ProductPageDto fromEntity(Page<Product> productPage) {
         if (productPage == null) return null;
 
+        List<ProductDto> products = productPage.getContent()
+                .stream()
+                .map(ProductDto::fromEntity)
+                .toList();
+
         return ProductPageDto.builder()
-                .products(productPage.getContent())
+                .products(products)
                 .totalPages(productPage.getTotalPages())
                 .totalElements(productPage.getTotalElements())
                 .page(productPage.getPageable().getPageNumber())

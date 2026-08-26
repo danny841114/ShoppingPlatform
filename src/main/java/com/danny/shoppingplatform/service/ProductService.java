@@ -35,7 +35,9 @@ public class ProductService {
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-        return ProductDto.fromEntity(product, product.getMember().getId());
+        Long vendorId = product.getMember().getId();
+        String vendorAccount = product.getMember().getAccount();
+        return ProductDto.fromEntity(product, vendorId, vendorAccount);
     }
 
     public byte[] getProductPhotoById(Integer id) {
@@ -84,8 +86,9 @@ public class ProductService {
 
         // avoid N+1 query problem
         Long vendorId = savedProduct.getMember().getId();
+        String vendorAccount = savedProduct.getMember().getAccount();
 
-        return ProductDto.fromEntity(savedProduct, vendorId);
+        return ProductDto.fromEntity(savedProduct, vendorId, vendorAccount);
     }
 
     @Transactional
@@ -123,16 +126,17 @@ public class ProductService {
 
         // avoid N+1 query problem
         Long vendorId = member.getId();
+        String vendorAccount = member.getAccount();
 
         return products.stream()
-                .map(product -> ProductDto.fromEntity(product, vendorId))
+                .map(product -> ProductDto.fromEntity(product, vendorId, vendorAccount))
                 .toList();
     }
 
     public ProductPageDto getProducts(Pageable pageable, String keyword) {
         Page<Product> productPage;
         if (keyword != null && !keyword.isBlank()) {
-            productPage = productRepository.findByNameOrMemberAccountContaining(keyword, pageable);
+            productPage = productRepository.findByNameContainingOrMemberAccountContaining(keyword, keyword, pageable);
         } else {
             productPage = productRepository.findAll(pageable);
         }
