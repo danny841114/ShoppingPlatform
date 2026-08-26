@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;
 import com.danny.shoppingplatform.dto.cart.CartDto;
+import com.danny.shoppingplatform.dto.cart.CartUpdateRequest;
 import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
@@ -37,6 +38,25 @@ public class CartService {
                 .stream()
                 .map(CartDto::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public void updateCartItem(Long cartId, CartUpdateRequest request, String account) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+
+        if (!Objects.equals(account, cart.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not update other's cart item");
+        }
+
+        Integer productQuantity = cart.getProduct().getQuantity();
+        Integer requestQuantity = request.getQuantity();
+        if (requestQuantity > productQuantity || requestQuantity < 1) {
+            throw new ArithmeticException("Request quantity is illegal");
+        }
+
+        cart.setQuantity(requestQuantity);
+        cartRepository.save(cart);
     }
 
     @Transactional

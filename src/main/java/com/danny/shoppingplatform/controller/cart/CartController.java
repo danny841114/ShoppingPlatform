@@ -3,6 +3,7 @@ package com.danny.shoppingplatform.controller.cart;
 import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;
 import com.danny.shoppingplatform.dto.cart.CartDto;
+import com.danny.shoppingplatform.dto.cart.CartUpdateRequest;
 import com.danny.shoppingplatform.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,14 @@ public class CartController {
     private ResponseEntity<List<CartDto>> getCartItems(@CurrentAccount String account) {
         List<CartDto> cartDtos = cartService.getCartItems(account);
         return ResponseEntity.ok(cartDtos);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateCartItem(@PathVariable Long id,
+                                               @RequestBody CartUpdateRequest request,
+                                               @CurrentAccount String account) {
+        cartService.updateCartItem(id, request, account);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
