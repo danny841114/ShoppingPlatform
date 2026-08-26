@@ -47,7 +47,7 @@ public class ProductController {
                                                       @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
-        ProductPageDto pageDto = productService.getProducts(pageable,keyword);
+        ProductPageDto pageDto = productService.getProducts(pageable, keyword);
         return ResponseEntity.ok(pageDto);
     }
 
