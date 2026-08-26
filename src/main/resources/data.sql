@@ -2,13 +2,13 @@ INSERT INTO member (account, password, role, name, birthdate, email, photo) VALU
 ('vendor01', 'pass123', 'VENDOR', '極致數位館', '1985-03-15', 'vendor01@example.com', NULL),
 ('vendor02', 'pass123', 'VENDOR', '潮流服飾專賣', '1990-07-22', 'vendor02@example.com', NULL),
 ('vendor03', 'pass123', 'VENDOR', '美味生活家', '1988-11-05', 'vendor03@example.com', NULL),
-('buyer01', 'pass123', 'BUYER', '陳小明', '1995-01-10', 'buyer01@example.com', NULL),
-('buyer02', 'pass123', 'BUYER', '林美玲', '1998-04-18', 'buyer02@example.com', NULL),
-('buyer03', 'pass123', 'BUYER', '張大衛', '1992-09-30', 'buyer03@example.com', NULL),
-('buyer04', 'pass123', 'BUYER', '黃雅婷', '2000-12-05', 'buyer04@example.com', NULL),
-('buyer05', 'pass123', 'BUYER', '周杰倫', '1982-06-12', 'buyer05@example.com', NULL),
-('buyer06', 'pass123', 'BUYER', '許小華', '1996-08-25', 'buyer06@example.com', NULL),
-('buyer07', 'pass123', 'BUYER', '鄭家豪', '1994-02-14', 'buyer07@example.com', NULL);
+('buyer01', 'pass123', 'MEMBER', '陳小明', '1995-01-10', 'buyer01@example.com', NULL),
+('buyer02', 'pass123', 'MEMBER', '林美玲', '1998-04-18', 'buyer02@example.com', NULL),
+('buyer03', 'pass123', 'MEMBER', '張大衛', '1992-09-30', 'buyer03@example.com', NULL),
+('buyer04', 'pass123', 'MEMBER', '黃雅婷', '2000-12-05', 'buyer04@example.com', NULL),
+('buyer05', 'pass123', 'MEMBER', '周杰倫', '1982-06-12', 'buyer05@example.com', NULL),
+('buyer06', 'pass123', 'MEMBER', '許小華', '1996-08-25', 'buyer06@example.com', NULL),
+('buyer07', 'pass123', 'MEMBER', '鄭家豪', '1994-02-14', 'buyer07@example.com', NULL);
 
 INSERT INTO product (name, description, price, quantity, date, vendor_id, photo) VALUES
 ('無線降噪耳機', '支援主動降噪，續航力長達 30 小時', 3500.00, 50, CURRENT_TIMESTAMP(), 1, NULL),

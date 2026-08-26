@@ -13,6 +13,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static com.danny.shoppingplatform.dto.member.UserInfo.generateUserInfo;
 
 @RequiredArgsConstructor
@@ -39,7 +41,12 @@ public class MemberController {
     }
 
     @GetMapping("/api/me")
-    public ResponseEntity<UserInfo> fetchMe(@CurrentAccount String account) {
+    public ResponseEntity<?> fetchMe(@CurrentAccount String account) {
+        if ("anonymousUser".equals(account)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Not logged in"));
+        }
+
         MemberDto dto = memberService.getMemberByAccount(account);
         UserInfo response = generateUserInfo(dto.getAccount(), dto.getRole());
         return ResponseEntity.ok(response);
