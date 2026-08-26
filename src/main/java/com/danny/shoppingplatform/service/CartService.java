@@ -109,38 +109,4 @@ public class CartService {
 
         return fromEntity(savedCart);
     }
-
-    @Transactional
-    public CartDto increaseProductQuantity(Long cartId, String account) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
-
-        if (!Objects.equals(account, cart.getMember().getAccount())) {
-            throw new AccessDeniedException("Can not handle other's cart item");
-        }
-
-        if (cart.getQuantity() + 1 <= cart.getProduct().getQuantity()) {
-            cart.setQuantity(cart.getQuantity() + 1);
-            cartRepository.save(cart);
-        }
-
-        return fromEntity(cart);
-    }
-
-    @Transactional
-    public CartDto decreaseProductQuantity(Long cartId, String account) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
-
-        if (!Objects.equals(account, cart.getMember().getAccount())) {
-            throw new AccessDeniedException("Can not handle other's cart item");
-        }
-
-        if (cart.getQuantity() > 1) {
-            cart.setQuantity(cart.getQuantity() - 1);
-            cartRepository.save(cart);
-        }
-
-        return fromEntity(cart);
-    }
 }

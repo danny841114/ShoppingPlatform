@@ -38,18 +38,6 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/quantity/increase")
-    public ResponseEntity<CartDto> increaseProductQuantity(@PathVariable Long id, @CurrentAccount String account) {
-        CartDto cartDto = cartService.increaseProductQuantity(id, account);
-        return ResponseEntity.ok(cartDto);
-    }
-
-    @PutMapping("/{id}/quantity/decrease")
-    public ResponseEntity<CartDto> decreaseProductQuantity(@PathVariable Long id, @CurrentAccount String account) {
-        CartDto cartDto = cartService.decreaseProductQuantity(id, account);
-        return ResponseEntity.ok(cartDto);
-    }
-
     @PostMapping("/product/{productId}/add")
     public ResponseEntity<CartDto> addCartItem(@PathVariable Long productId,
                                                @RequestBody CartAddRequest request,
