@@ -9,11 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
     private final CartService cartService;
+
+    @GetMapping
+    private ResponseEntity<List<CartDto>> getCartItems(@CurrentAccount String account) {
+        List<CartDto> cartDtos = cartService.getCartItems(account);
+        return ResponseEntity.ok(cartDtos);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeCartItem(@PathVariable Long id, @CurrentAccount String account) {

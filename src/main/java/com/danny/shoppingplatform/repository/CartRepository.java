@@ -4,13 +4,12 @@ import com.danny.shoppingplatform.model.Cart;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    List<Cart> findByMember(Member member);
+    List<Cart> findByMemberAccount(String account);
+
     Optional<Cart> findByMemberAndProduct(Member member, Product product);
 }

@@ -28,13 +28,13 @@ public class CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
 
-    public List<CartDto> getCartsByMember(String account) {
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+    public List<CartDto> getCartItems(String account) {
+        if (!memberRepository.existsByAccount(account)) {
+            throw new UsernameNotFoundException("Account '%s' not found".formatted(account));
+        }
 
-        List<Cart> carts = cartRepository.findByMember(member);
-
-        return carts.stream()
+        return cartRepository.findByMemberAccount(account)
+                .stream()
                 .map(CartDto::fromEntity)
                 .toList();
     }

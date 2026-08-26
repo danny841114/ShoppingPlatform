@@ -18,7 +18,6 @@ public class ProductDto {
     private BigDecimal price;
     private Integer quantity;
     private Instant date;
-    private byte[] photo;
 
     @Data
     @Builder
@@ -43,7 +42,6 @@ public class ProductDto {
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .date(product.getDate())
-                .photo(product.getPhoto())
                 .build();
     }
 
@@ -61,7 +59,6 @@ public class ProductDto {
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .date(product.getDate())
-                .photo(product.getPhoto())
                 .build();
     }
 }

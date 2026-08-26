@@ -1,16 +1,13 @@
 package com.danny.shoppingplatform.dto.product;
 
 import com.danny.shoppingplatform.model.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,7 +31,7 @@ public class ProductPageDto {
                 .products(products)
                 .totalPages(productPage.getTotalPages())
                 .totalElements(productPage.getTotalElements())
-                .page(productPage.getPageable().getPageNumber())
+                .page(productPage.getNumber())
                 .size(productPage.getSize())
                 .build();
     }

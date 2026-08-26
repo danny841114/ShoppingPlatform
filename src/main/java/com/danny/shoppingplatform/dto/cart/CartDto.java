@@ -1,14 +1,14 @@
 package com.danny.shoppingplatform.dto.cart;
 
+import com.danny.shoppingplatform.dto.product.ProductDto;
 import com.danny.shoppingplatform.model.Cart;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,17 +16,22 @@ public class CartDto {
     private Long id;
     private Integer quantity;
     private Long memberId;
-    private Long productId;
+    private ProductDto product;
+    private BigDecimal subtotal;
     private Instant createdDate;
 
     public static CartDto fromEntity(Cart cart) {
         if (cart == null) return null;
 
+        BigDecimal price = cart.getProduct() != null ? cart.getProduct().getPrice() : BigDecimal.ZERO;
+        BigDecimal quantity = BigDecimal.valueOf(cart.getQuantity());
+
         return CartDto.builder()
                 .id(cart.getId())
                 .quantity(cart.getQuantity())
                 .memberId(cart.getMember().getId())
-                .productId(cart.getProduct().getId())
+                .product(ProductDto.fromEntity(cart.getProduct()))
+                .subtotal(price.multiply(quantity))
                 .createdDate(cart.getCreatedDate())
                 .build();
     }
