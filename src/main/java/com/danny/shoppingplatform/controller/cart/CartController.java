@@ -38,11 +38,10 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/product/{productId}/add")
-    public ResponseEntity<CartDto> addCartItem(@PathVariable Long productId,
-                                               @RequestBody CartAddRequest request,
+    @PostMapping
+    public ResponseEntity<CartDto> addCartItem(@RequestBody CartAddRequest request,
                                                @CurrentAccount String account) {
-        CartDto cartDto = cartService.addCartItem(productId, request, account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartDto);
+        cartService.addCartItem(request, account);
+        return ResponseEntity.status(HttpStatus.CREATED).build(); // TODO: need to fix
     }
 }

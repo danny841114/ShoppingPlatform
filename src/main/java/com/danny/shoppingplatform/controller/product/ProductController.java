@@ -54,7 +54,7 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductCreateRequest request, @CurrentAccount String account) {
         ProductDto productDto = productService.addProduct(request, account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);  // TODO: need to fix
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

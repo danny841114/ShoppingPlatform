@@ -72,31 +72,24 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto addCartItem(Long productId, CartAddRequest request, String account) {
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-
-        if (!Objects.equals(account, product.getMember().getAccount())) {
-            throw new AccessDeniedException("Can not add own product into cart");
-        }
-
+    public void addCartItem(CartAddRequest request, String account) {
         Integer inputQuantity = request.getQuantity();
         if (inputQuantity == null || inputQuantity <= 0) {
             throw new IllegalArgumentException("Quantity must be more than 0");
         }
 
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        if (Objects.equals(account, product.getMember().getAccount())) {
+            throw new AccessDeniedException("Can not add own product into cart");
+        }
+
         Cart cart = cartRepository.findByMemberAndProduct(member, product)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    newCart.setCreatedDate(Instant.now());
-                    newCart.setQuantity(0);
-                    newCart.setMember(member);
-                    newCart.setProduct(product);
-                    return newCart;
-                });
+                .orElseGet(() -> cartRepository.save(Cart.create(member, product)));
 
         int targetQuantity = cart.getQuantity() + inputQuantity;
         if (targetQuantity > product.getQuantity()) {
@@ -105,8 +98,6 @@ public class CartService {
             cart.setQuantity(targetQuantity);
         }
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return fromEntity(savedCart);
+        cartRepository.save(cart);
     }
 }

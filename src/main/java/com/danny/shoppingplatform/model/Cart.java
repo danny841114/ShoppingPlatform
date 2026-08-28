@@ -34,4 +34,12 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    public static Cart create(Member member, Product product) {
+        Cart cart = new Cart();
+        cart.setMember(member);
+        cart.setProduct(product);
+        cart.setQuantity(0);
+        return cart;
+    }
 }
