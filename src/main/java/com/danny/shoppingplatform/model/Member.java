@@ -51,4 +51,9 @@ public class Member {
     @JsonManagedReference
     @OneToMany(mappedBy = "member")
     private List<Cart> cartList;
+
+    @JsonIgnore
+    @JsonManagedReference
+    @OneToMany(mappedBy = "member")
+    private List<Order> orderList;
 }
