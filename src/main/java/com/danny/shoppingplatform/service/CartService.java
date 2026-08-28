@@ -12,6 +12,7 @@ import com.danny.shoppingplatform.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +80,7 @@ public class CartService {
         }
 
         Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+                .orElseThrow(() -> new BadCredentialsException("Account '%s' not found".formatted(account)));
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
