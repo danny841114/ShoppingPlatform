@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +22,6 @@ import java.util.List;
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final MemberRepository memberRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
