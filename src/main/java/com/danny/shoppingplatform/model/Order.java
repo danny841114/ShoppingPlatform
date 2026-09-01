@@ -27,10 +27,31 @@ public class Order {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
+    @Column(name = "shipping_fee", nullable = false)
+    private BigDecimal shippingFee;
+
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "created_date")
+    @Column(name = "receiver_name", nullable = false)
+    private String receiverName;
+
+    @Column(name = "receiver_phone", nullable = false)
+    private String receiverPhone;
+
+    @Column(name = "receiver_email", nullable = false)
+    private String receiverEmail;
+
+    @Column(name = "receiver_address", nullable = false)
+    private String receiverAddress;
+
+    @Column(name = "payment_method", nullable = false)
+    private String paymentMethod;
+
+    @Column(name = "note")
+    private String note;
+
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,4 +62,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<OrderItem> orderItemList = new ArrayList<>();
+
+    public void addOrderItem(OrderItem item) {
+        orderItemList.add(item);
+        item.setOrder(this);
+    }
 }

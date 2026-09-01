@@ -26,10 +26,16 @@ public class OrderItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    // 關鍵：保存下單當時的價格，不受商品後續改價影響
+    @Column(name = "product_name", nullable = false)
+    private String productName;
+
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+
+    public BigDecimal getSubtotal() {
+        return this.price.multiply(BigDecimal.valueOf(this.quantity));
+    }
 }

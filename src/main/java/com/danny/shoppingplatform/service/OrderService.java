@@ -48,9 +48,17 @@ public class OrderService {
         order.setOrderNumber(NumberUtil.generateOrderNumber());
         order.setStatus("PENDING"); // 初始狀態：待付款 / 處理中
         order.setCreatedDate(Instant.now());
+        order.setReceiverName(request.getReceiverName());
+        order.setReceiverPhone(request.getReceiverPhone());
+        order.setReceiverEmail(request.getReceiverEmail());
+        order.setReceiverAddress(request.getReceiverAddress());
+        order.setPaymentMethod(request.getPaymentMethod());
+        order.setNote(request.getNote());
 
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal shippingFee = request.getShippingFee() != null ? request.getShippingFee() : BigDecimal.ZERO;
+        order.setShippingFee(shippingFee);
+
+        BigDecimal itemSubtotal = BigDecimal.ZERO;
 
         for (Cart cart : selectedCarts) {
             Product product = cart.getProduct();
@@ -61,23 +69,22 @@ public class OrderService {
             }
 
             product.setQuantity(product.getQuantity() - cart.getQuantity());
-            productRepository.save(product);
+            productRepository.save(product); // 可移除
 
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
             orderItem.setProduct(product);
+            orderItem.setProductName(product.getName());
             orderItem.setPrice(product.getPrice());
             orderItem.setQuantity(cart.getQuantity());
 
             // 因設定 CascadeType.ALL, order 儲存時會一併儲存
-            orderItems.add(orderItem);
+            order.addOrderItem(orderItem);
 
             BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity()));
-            totalAmount = totalAmount.add(itemTotal);
+            itemSubtotal = itemSubtotal.add(itemTotal);
         }
 
-        order.setTotalAmount(totalAmount);
-        order.setOrderItemList(orderItems);
+        order.setTotalAmount(itemSubtotal.add(shippingFee));
 
         Order savedOrder = orderRepository.save(order);
 
