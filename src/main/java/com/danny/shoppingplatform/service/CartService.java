@@ -73,7 +73,7 @@ public class CartService {
     }
 
     @Transactional
-    public void addCartItem(CartAddRequest request, String account) {
+    public CartDto addCartItem(CartAddRequest request, String account) {
         Integer inputQuantity = request.getQuantity();
         if (inputQuantity == null || inputQuantity <= 0) {
             throw new IllegalArgumentException("Quantity must be more than 0");
@@ -99,6 +99,7 @@ public class CartService {
             cart.setQuantity(targetQuantity);
         }
 
-        cartRepository.save(cart);
+        Cart savedItem = cartRepository.save(cart);
+        return CartDto.fromEntity(savedItem);
     }
 }

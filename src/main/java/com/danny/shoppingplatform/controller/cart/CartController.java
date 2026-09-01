@@ -41,7 +41,7 @@ public class CartController {
     @PostMapping
     public ResponseEntity<CartDto> addCartItem(@RequestBody CartAddRequest request,
                                                @CurrentAccount String account) {
-        cartService.addCartItem(request, account);
-        return ResponseEntity.status(HttpStatus.CREATED).build(); // TODO: need to fix
+        CartDto cartDto = cartService.addCartItem(request, account);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartDto); // TODO: need to fix
     }
 }
