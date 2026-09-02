@@ -80,14 +80,28 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID '%s' not found".formatted(productId)));
 
         Cart cart = cartRepository.findByMemberAndProduct(member, product)
-                .orElseGet(() -> cartRepository.save(Cart.create(member, product, 0)));
+                .orElseGet(() -> Cart.create(member, product, 0));
 
-        int targetQuantity = cart.getQuantity() + inputQuantity;
-        if (targetQuantity > product.getQuantity()) {
-            throw new IllegalArgumentException("Product quantity is not enough");
-        } else {
-            cart.setQuantity(targetQuantity);
+        int currentQuantity = cart.getQuantity();
+        int availableStock = product.getQuantity();
+        int remainingAllowed = availableStock - currentQuantity;
+
+        // 情境 A：購物車原本就已經放滿庫存
+        if (remainingAllowed <= 0) {
+            throw new IllegalArgumentException(
+                    "The limit for this item in your cart has been reached (Maximum: %d)".formatted(availableStock)
+            );
         }
+
+        // 情境 B：欲新增數量超過剩餘可加購額度
+        if (inputQuantity > remainingAllowed) {
+            throw new IllegalArgumentException(
+                    "Insufficient stock. You can only add up to %d more of this item (Cart: %d, Stock: %d)"
+                            .formatted(remainingAllowed, currentQuantity, availableStock)
+            );
+        }
+
+        cart.setQuantity(currentQuantity + inputQuantity);
 
         Cart savedItem = cartRepository.save(cart);
         return CartDto.fromEntity(savedItem);
