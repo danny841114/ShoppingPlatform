@@ -19,10 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p.photo FROM Product p WHERE p.id = :id")
     Optional<byte[]> findPhotoById(@Param("id") Integer id);
 
-    @EntityGraph(attributePaths = {"member"})
+    @EntityGraph(attributePaths = {"vendor"})
     Page<Product> findByNameContainingOrVendorShopNameContaining(String nameKeyword, String accountKeyword, Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {"member"})
+    @EntityGraph(attributePaths = {"vendor"})
     Page<Product> findAll(Pageable pageable);
 }

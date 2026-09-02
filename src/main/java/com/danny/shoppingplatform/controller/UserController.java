@@ -15,15 +15,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static com.danny.shoppingplatform.dto.member.UserInfo.generateUserInfo;
-
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api")
 public class UserController {
     private final UserService userService;
     private final CookieUtil cookieUtil;
 
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     public ResponseEntity<UserInfo> login(@Valid @RequestBody LoginRequest request) {
         LoginResult loginResult = userService.login(request);
         ResponseCookie cookie = cookieUtil.createJwtCookie(loginResult.getToken());
@@ -32,7 +31,7 @@ public class UserController {
                 .body(loginResult.getUserInfo());
     }
 
-    @PostMapping("/api/logout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         ResponseCookie cookie = cookieUtil.removeJwtCookie();
         return ResponseEntity.ok()
@@ -40,21 +39,20 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/api/me")
+    @GetMapping("/me")
     public ResponseEntity<?> fetchMe(@CurrentAccount String account) {
         if ("anonymousUser".equals(account)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Not logged in"));
         }
 
-        UserDto dto = userService.getMemberByAccount(account);
-        UserInfo response = generateUserInfo(dto.getAccount(), dto.getRole());
-        return ResponseEntity.ok(response);
+        UserInfo userInfo = userService.fetchMe(account);
+        return ResponseEntity.ok(userInfo);
     }
 
-    @PostMapping("/api/register")
-    public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) throws BadRequestException {
-        UserDto userDto = userService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+    @PostMapping("/register")
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) throws BadRequestException {
+        userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

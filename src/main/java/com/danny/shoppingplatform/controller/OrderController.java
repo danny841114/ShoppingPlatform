@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.controller.order;
+package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.order.AddOrderRequest;

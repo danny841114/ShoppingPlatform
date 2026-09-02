@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,9 +24,6 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false)
-    private String role; // ex: "ROLE_MEMBER", "ROLE_VENDOR"
-
     @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate = Instant.now();
 
@@ -33,4 +32,13 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Vendor vendor;
+
+    public List<String> getRoles() {
+        List<String> roles = new ArrayList<>();
+
+        if (this.member != null) roles.add("MEMBER");
+        if (this.vendor != null) roles.add("VENDOR");
+
+        return roles;
+    }
 }

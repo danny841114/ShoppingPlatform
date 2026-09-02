@@ -31,12 +31,12 @@ public class JwtUtil {
 
     public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(user.getAccount()) // 使用者帳號
-                .claim("role", user.getRole()) // 角色
-                .setIssuedAt(new Date()) // 設定發行時間
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // 設定過期時間
-                .signWith(key, SignatureAlgorithm.HS256) // 使用金鑰與演算法簽名
-                .compact(); // 建立token並回傳字串
+                .setSubject(user.getAccount())
+                .claim("roles", user.getRoles())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public boolean validateToken(String token) {

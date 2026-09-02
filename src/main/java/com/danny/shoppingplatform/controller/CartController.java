@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.controller.cart;
+package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.cart.CartAddRequest;

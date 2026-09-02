@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.dto.member.*;
 import com.danny.shoppingplatform.jwt.JwtUtil;
+import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.User;
 import com.danny.shoppingplatform.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-
-import static com.danny.shoppingplatform.dto.member.UserDto.fromEntity;
-import static com.danny.shoppingplatform.dto.member.UserInfo.generateUserInfo;
 
 @Slf4j
 @Service
@@ -40,40 +36,35 @@ public class UserService implements UserDetailsService {
         return new UserDetailsImpl(user);
     }
 
-    public UserDto getMemberByAccount(String account) {
+    public UserInfo fetchMe(String account) {
         User user = getUserByAccount(account);
-        return fromEntity(user);
+        return UserInfo.fromEntity(user);
     }
 
     @Transactional
-    public UserDto register(RegisterRequest request) throws BadRequestException {
+    public void register(RegisterRequest request) throws BadRequestException {
         String account = request.getAccount();
         String password = request.getPassword();
 
-        Optional<User> userByAccount = userRepository.findByAccount(account);
-        if (userByAccount.isPresent()) {
+        if (userRepository.existsByAccount(account)) {
             throw new BadRequestException("User with account '%s' already exists".formatted(account));
         }
 
         User newUser = new User();
         newUser.setAccount(account);
         newUser.setPassword(password);
-        newUser.setRole("USER");
-        User savedUser = userRepository.save(newUser);
-
-        return fromEntity(savedUser);
+        Member newMember = new Member();
+        newMember.setUser(newUser);
+        userRepository.save(newUser);
     }
 
     public LoginResult login(LoginRequest request) {
         Authentication authenticationToken = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
-
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserInfo userInfo = UserInfo.fromEntity(userDetails.getUser());
 
         String token = jwtUtil.generateToken(userDetails.getUser());
-
-        UserInfo userInfo = generateUserInfo(userDetails.getAccount(), userDetails.getRole());
 
         return LoginResult.builder()
                 .userInfo(userInfo)
