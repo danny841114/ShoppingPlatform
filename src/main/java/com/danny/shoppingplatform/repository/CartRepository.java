@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    List<Cart> findByMemberAccount(String account);
+    List<Cart> findByMemberUserAccount(String account);
 
     Optional<Cart> findByMemberAndProduct(Member member, Product product);
 

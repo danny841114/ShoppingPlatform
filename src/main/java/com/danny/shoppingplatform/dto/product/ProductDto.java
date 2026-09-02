@@ -25,13 +25,13 @@ public class ProductDto {
     @AllArgsConstructor
     private static class Vendor {
         private Long id;
-        private String account;
+        private String shopName;
     }
 
-    public static ProductDto fromEntity(Product product, Long vendorId, String vendorAccount) {
+    public static ProductDto fromEntity(Product product, Long vendorId, String shopName) {
         Vendor vendor = Vendor.builder()
                 .id(vendorId)
-                .account(vendorAccount)
+                .shopName(shopName)
                 .build();
 
         return ProductDto.builder()
@@ -47,8 +47,8 @@ public class ProductDto {
 
     public static ProductDto fromEntity(Product product) {
         Vendor vendor = Vendor.builder()
-                .id(product.getMember().getId())
-                .account(product.getMember().getAccount())
+                .id(product.getVendor().getId())
+                .shopName(product.getVendor().getShopName())
                 .build();
 
         return ProductDto.builder()

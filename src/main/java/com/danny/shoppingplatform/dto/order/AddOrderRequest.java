@@ -1,6 +1,7 @@
 package com.danny.shoppingplatform.dto.order;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,10 @@ import java.util.List;
 public class AddOrderRequest {
     @NotEmpty
     private List<Long> cartIds;
+
+    @NotNull
+    private Long vendorId;
+
     private String receiverName;
     private String receiverPhone;
     private String receiverEmail;

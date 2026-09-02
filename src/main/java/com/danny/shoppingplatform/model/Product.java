@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,10 +28,10 @@ public class Product {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    @JoinColumn(name = "vendor_id")
-    private Member member;
+    @JoinColumn(name = "vendor_id", nullable = false)
+    private Vendor vendor;
 
     @Column(name = "price")
     private BigDecimal price;
@@ -49,5 +50,5 @@ public class Product {
     @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "product")
-    private List<Cart> cartList;
+    private List<Cart> cartList = new ArrayList<>();
 }

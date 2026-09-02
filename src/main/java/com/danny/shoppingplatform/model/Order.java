@@ -52,12 +52,17 @@ public class Order {
     private String note;
 
     @Column(name = "created_date", nullable = false, updatable = false)
-    private Instant createdDate;
+    private Instant createdDate = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     @JsonBackReference
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id", nullable = false)
+    @JsonBackReference
+    private Vendor vendor;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

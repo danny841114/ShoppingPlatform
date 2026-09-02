@@ -5,6 +5,7 @@ import com.danny.shoppingplatform.dto.order.OrderResponse;
 import com.danny.shoppingplatform.model.*;
 import com.danny.shoppingplatform.repository.*;
 import com.danny.shoppingplatform.util.NumberUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,13 +23,18 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
+    private final VendorRepository vendorRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
     @Transactional
     public OrderResponse addOrder(AddOrderRequest request, String account) {
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+        Member member = memberRepository.findByUserAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Member with account '%s' not found".formatted(account)));
+
+        Long vendorId = request.getVendorId();
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new EntityNotFoundException("Vendor with ID '%s' not found".formatted(vendorId)));
 
         List<Long> cartIds = request.getCartIds();
         Long memberId = member.getId();
@@ -45,6 +50,7 @@ public class OrderService {
 
         Order order = new Order();
         order.setMember(member);
+        order.setVendor(vendor);
         order.setOrderNumber(NumberUtil.generateOrderNumber());
         order.setStatus("PENDING"); // 初始狀態：待付款 / 處理中
         order.setCreatedDate(Instant.now());

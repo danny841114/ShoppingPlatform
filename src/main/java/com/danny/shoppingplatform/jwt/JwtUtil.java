@@ -1,6 +1,6 @@
 package com.danny.shoppingplatform.jwt;
 
-import com.danny.shoppingplatform.model.Member;
+import com.danny.shoppingplatform.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,10 +29,10 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    public String generateToken(Member member) {
+    public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(member.getAccount()) // 使用者帳號
-                .claim("role", member.getRole()) // 角色
+                .setSubject(user.getAccount()) // 使用者帳號
+                .claim("role", user.getRole()) // 角色
                 .setIssuedAt(new Date()) // 設定發行時間
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // 設定過期時間
                 .signWith(key, SignatureAlgorithm.HS256) // 使用金鑰與演算法簽名

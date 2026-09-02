@@ -20,26 +20,26 @@ public class Cart {
     private Long id;
 
     @Column(name = "created_date")
-    private Instant createdDate;
+    private Instant createdDate = Instant.now();
 
     @Column(name = "quantity")
     private Integer quantity;
 
     @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public static Cart create(Member member, Product product) {
+    public static Cart create(Member member, Product product, Integer quantity) {
         Cart cart = new Cart();
         cart.setMember(member);
         cart.setProduct(product);
-        cart.setQuantity(0);
+        cart.setQuantity(quantity);
         return cart;
     }
 }

@@ -7,15 +7,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "member")
-public class Member {
+@Table(name = "vendor")
+public class Vendor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -26,27 +25,19 @@ public class Member {
     @JsonBackReference
     private User user;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "shop_name", nullable = false)
+    private String shopName;
 
-    @Column(name = "birthdate")
-    private LocalDate birthdate;
-
-    @Column(name = "email")
-    private String email;
-
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "photo")
-    private byte[] photo;
+    @Column(name = "description")
+    private String description;
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cart> cartList = new ArrayList<>();
+    @OneToMany(mappedBy = "vendor")
+    private List<Product> productList = new ArrayList<>();
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "member")
-    private List<Order> orderList = new ArrayList<>();
+    @OneToMany(mappedBy = "vendor")
+    private List<Order> vendorOrderList = new ArrayList<>();
 }

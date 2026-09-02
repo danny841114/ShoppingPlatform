@@ -5,10 +5,10 @@ import com.danny.shoppingplatform.dto.product.ProductDto;
 import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
 import com.danny.shoppingplatform.dto.product.ProductPageDto;
 import com.danny.shoppingplatform.exception.custom.InternalServerException;
-import com.danny.shoppingplatform.repository.MemberRepository;
+import com.danny.shoppingplatform.model.Vendor;
 import com.danny.shoppingplatform.repository.ProductRepository;
-import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
+import com.danny.shoppingplatform.repository.VendorRepository;
 import com.danny.shoppingplatform.util.ImageHelper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +30,13 @@ import java.util.*;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final MemberRepository memberRepository;
+    private final VendorRepository vendorRepository;
 
     public ProductDto getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-        Long vendorId = product.getMember().getId();
-        String vendorAccount = product.getMember().getAccount();
-        return ProductDto.fromEntity(product, vendorId, vendorAccount);
+        Product product = getById(id);
+        Long vendorId = product.getVendor().getId();
+        String shopName = product.getVendor().getShopName();
+        return ProductDto.fromEntity(product, vendorId, shopName);
     }
 
     public byte[] getProductPhotoById(Integer id) {
@@ -46,13 +45,11 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Long id, String currentAccount) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product with id '%s' not found ".formatted(id)));
-
-        if (!product.getMember().getAccount().equals(currentAccount)) {
-            log.error("[deleteProduct] Wrong account from member");
-            throw new AuthorizationDeniedException("Wrong account from member");
+    public void deleteProduct(Long id, String account) {
+        Product product = getById(id);
+        Vendor vendor = getVendorByAccount(account);
+        if (!vendor.getId().equals(product.getVendor().getId())) {
+            throw new AuthorizationDeniedException("Product owner and current vendor does not match");
         }
 
         productRepository.delete(product);
@@ -70,35 +67,31 @@ public class ProductService {
             }
         }
 
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
+        Vendor vendor = getVendorByAccount(account);
 
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setMember(member);
+        product.setVendor(vendor);
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
         product.setDate(Instant.now());
         product.setPhoto(photoByteArray);
-
         Product savedProduct = productRepository.save(product);
 
         // avoid N+1 query problem
-        Long vendorId = savedProduct.getMember().getId();
-        String vendorAccount = savedProduct.getMember().getAccount();
+        Long vendorId = savedProduct.getVendor().getId();
+        String shopName = savedProduct.getVendor().getShopName();
 
-        return ProductDto.fromEntity(savedProduct, vendorId, vendorAccount);
+        return ProductDto.fromEntity(savedProduct, vendorId, shopName);
     }
 
     @Transactional
     public void modifyProduct(Long id, ProductModifyRequest request, String account) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: %s".formatted(id)));
-
-        if (!product.getMember().getAccount().equals(account)) {
-            log.error("Wrong account from member");
-            throw new AuthorizationDeniedException("Wrong account from member");
+        Product product = getById(id);
+        Vendor vendor = getVendorByAccount(account);
+        if (!vendor.getId().equals(product.getVendor().getId())) {
+            throw new AuthorizationDeniedException("Product owner and current vendor does not match");
         }
 
         if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
@@ -119,28 +112,36 @@ public class ProductService {
     }
 
     public List<ProductDto> getProductsByVendor(String account) {
-        Member member = memberRepository.findByAccount(account)
-                .orElseThrow(() -> new UsernameNotFoundException("Account '%s' not found".formatted(account)));
-
-        List<Product> products = productRepository.findByMember(member);
+        Vendor vendor = getVendorByAccount(account);
+        List<Product> products = productRepository.findByVendor(vendor);
 
         // avoid N+1 query problem
-        Long vendorId = member.getId();
-        String vendorAccount = member.getAccount();
+        Long vendorId = vendor.getId();
+        String shopName = vendor.getShopName();
 
         return products.stream()
-                .map(product -> ProductDto.fromEntity(product, vendorId, vendorAccount))
+                .map(product -> ProductDto.fromEntity(product, vendorId, shopName))
                 .toList();
     }
 
     public ProductPageDto getProducts(Pageable pageable, String keyword) {
         Page<Product> productPage;
         if (keyword != null && !keyword.isBlank()) {
-            productPage = productRepository.findByNameContainingOrMemberAccountContaining(keyword, keyword, pageable);
+            productPage = productRepository.findByNameContainingOrVendorShopNameContaining(keyword, keyword, pageable);
         } else {
             productPage = productRepository.findAll(pageable);
         }
 
         return ProductPageDto.fromEntity(productPage);
+    }
+
+    private Product getById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product with ID '%s' not found ".formatted(id)));
+    }
+
+    private Vendor getVendorByAccount(String account) {
+        return vendorRepository.findByUserAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("Vendor with account '%s' not found".formatted(account)));
     }
 }

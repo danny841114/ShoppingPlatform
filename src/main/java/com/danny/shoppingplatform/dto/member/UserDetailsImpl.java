@@ -1,6 +1,8 @@
 package com.danny.shoppingplatform.dto.member;
 
 import com.danny.shoppingplatform.model.Member;
+import com.danny.shoppingplatform.model.User;
+import com.danny.shoppingplatform.model.Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +12,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
-    private final Member member;
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -19,25 +21,29 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getAccount();
+        return user.getAccount();
     }
 
-    public Member getMember() {return member;}
+    public User getUser() {return user;}
+
+    public Member getMember() {return user.getMember();}
+
+    public Vendor getVendor() {return user.getVendor();}
 
     public String getAccount() {
-        return member.getAccount();
+        return user.getAccount();
     }
 
     public String getRole() {
-        return member.getRole();
+        return user.getRole();
     }
 
     public Long getId() {
-        return member.getId();
+        return user.getId();
     }
 }
