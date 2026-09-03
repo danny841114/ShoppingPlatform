@@ -17,16 +17,45 @@ public class OrderDto {
     private Long id;
     private String orderNumber;
     private BigDecimal totalAmount;
+    private BigDecimal shippingFee;
     private String status;
+    private String receiverName;
+    private String receiverPhone;
+    private String receiverEmail;
+    private String receiverAddress;
+    private String paymentMethod;
+    private String note;
     private Instant createdDate;
-    private List<OrderItemResponse> items;
+    private MemberDetail member;
+    private VendorDetail vendor;
+    private List<OrderItem> items;
 
     @Getter
     @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class OrderItemResponse {
+    public static class MemberDetail {
+        private Long id;
+        private String account;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VendorDetail {
+        private Long id;
+        private String shopName;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderItem {
         private Long productId;
         private String productName;
         private BigDecimal price;
@@ -34,9 +63,9 @@ public class OrderDto {
     }
 
     public static OrderDto fromEntity(Order order) {
-        List<OrderDto.OrderItemResponse> items = order.getOrderItemList()
+        List<OrderItem> items = order.getOrderItemList()
                 .stream()
-                .map(item -> OrderItemResponse.builder()
+                .map(item -> OrderItem.builder()
                         .productId(item.getProduct().getId())
                         .productName(item.getProduct().getName())
                         .price(item.getPrice())
@@ -45,12 +74,31 @@ public class OrderDto {
                 )
                 .collect(Collectors.toList());
 
+        MemberDetail member = MemberDetail.builder()
+                .id(order.getMember().getId())
+                .account(order.getMember().getUser().getAccount())
+                .build();
+
+        VendorDetail vendor = VendorDetail.builder()
+                .id(order.getVendor().getId())
+                .shopName(order.getVendor().getShopName())
+                .build();
+
         return OrderDto.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .totalAmount(order.getTotalAmount())
+                .shippingFee(order.getShippingFee())
                 .status(order.getStatus())
+                .receiverName(order.getReceiverName())
+                .receiverPhone(order.getReceiverPhone())
+                .receiverEmail(order.getReceiverEmail())
+                .receiverAddress(order.getReceiverAddress())
+                .paymentMethod(order.getPaymentMethod())
+                .note(order.getNote())
                 .createdDate(order.getCreatedDate())
+                .member(member)
+                .vendor(vendor)
                 .items(items)
                 .build();
     }
