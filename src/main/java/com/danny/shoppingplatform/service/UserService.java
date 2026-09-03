@@ -4,6 +4,7 @@ import com.danny.shoppingplatform.dto.member.*;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.User;
+import com.danny.shoppingplatform.repository.MemberRepository;
 import com.danny.shoppingplatform.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -23,11 +24,16 @@ public class UserService implements UserDetailsService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
-    public UserService(@Lazy AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
+    public UserService(@Lazy AuthenticationManager authenticationManager,
+                       JwtUtil jwtUtil,
+                       UserRepository userRepository,
+                       MemberRepository memberRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -53,9 +59,11 @@ public class UserService implements UserDetailsService {
         User newUser = new User();
         newUser.setAccount(account);
         newUser.setPassword(password);
+        User savedUser = userRepository.save(newUser);
+
         Member newMember = new Member();
-        newMember.setUser(newUser);
-        userRepository.save(newUser);
+        newMember.setUser(savedUser);
+        memberRepository.save(newMember);
     }
 
     public LoginResult login(LoginRequest request) {
