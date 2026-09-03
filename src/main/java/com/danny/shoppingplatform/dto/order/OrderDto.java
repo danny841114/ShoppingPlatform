@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderResponse {
-    private Long orderId;
+public class OrderDto {
+    private Long id;
     private String orderNumber;
     private BigDecimal totalAmount;
     private String status;
@@ -33,8 +33,8 @@ public class OrderResponse {
         private Integer quantity;
     }
 
-    public static OrderResponse fromEntity(Order order) {
-        List<OrderResponse.OrderItemResponse> items = order.getOrderItemList()
+    public static OrderDto fromEntity(Order order) {
+        List<OrderDto.OrderItemResponse> items = order.getOrderItemList()
                 .stream()
                 .map(item -> OrderItemResponse.builder()
                         .productId(item.getProduct().getId())
@@ -45,8 +45,8 @@ public class OrderResponse {
                 )
                 .collect(Collectors.toList());
 
-        return OrderResponse.builder()
-                .orderId(order.getId())
+        return OrderDto.builder()
+                .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .totalAmount(order.getTotalAmount())
                 .status(order.getStatus())

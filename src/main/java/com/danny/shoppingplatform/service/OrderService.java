@@ -1,19 +1,21 @@
 package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.dto.order.AddOrderRequest;
-import com.danny.shoppingplatform.dto.order.OrderResponse;
+import com.danny.shoppingplatform.dto.order.OrderDto;
 import com.danny.shoppingplatform.model.*;
 import com.danny.shoppingplatform.repository.*;
 import com.danny.shoppingplatform.util.NumberUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -26,9 +28,10 @@ public class OrderService {
     private final VendorRepository vendorRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public OrderResponse addOrder(AddOrderRequest request, String account) {
+    public OrderDto addOrder(AddOrderRequest request, String account) {
         Member member = memberRepository.findByUserAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Member with account '%s' not found".formatted(account)));
 
@@ -96,6 +99,34 @@ public class OrderService {
 
         cartRepository.deleteByIdInAndMemberId(cartIds, memberId);
 
-        return OrderResponse.fromEntity(savedOrder);
+        return OrderDto.fromEntity(savedOrder);
+    }
+
+    public List<OrderDto> getOrders(Long memberId, Long vendorId, String account) {
+        if (memberId != null && vendorId != null) {
+            throw new IllegalArgumentException("Cannot specify both memberId and vendorId at the same time");
+        }
+
+        User user = userRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("User with account '%s' not found".formatted(account)));
+
+        List<Order> orders;
+        if (memberId != null) {
+            if (!memberId.equals(user.getMember().getId())) {
+                throw new AccessDeniedException("No privilege to get order list");
+            }
+            orders = orderRepository.findByMemberId(memberId);
+        } else if (vendorId != null) {
+            if (!vendorId.equals(user.getVendor().getId())) {
+                throw new AccessDeniedException("No privilege to get order list");
+            }
+            orders = orderRepository.findByVendorId(vendorId);
+        } else {
+            throw new IllegalArgumentException("Both memberId and vendorId are null");
+        }
+
+        return orders.stream()
+                .map(OrderDto::fromEntity)
+                .toList();
     }
 }
