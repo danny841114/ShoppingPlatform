@@ -55,4 +55,10 @@ public class UserController {
         userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/add-vendor")
+    public ResponseEntity<Void> addVendor(@CurrentAccount String account) {
+        userService.addVendor(account);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
