@@ -1,6 +1,5 @@
-package com.danny.shoppingplatform.dto.member;
+package com.danny.shoppingplatform.dto.user;
 
-import com.danny.shoppingplatform.dto.user.CustomUserDetails;
 import com.danny.shoppingplatform.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

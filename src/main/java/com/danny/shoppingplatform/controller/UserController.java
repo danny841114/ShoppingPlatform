@@ -1,8 +1,7 @@
 package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
-import com.danny.shoppingplatform.dto.member.*;
-import com.danny.shoppingplatform.dto.user.SetRoleRequest;
+import com.danny.shoppingplatform.dto.user.*;
 import com.danny.shoppingplatform.service.UserService;
 import com.danny.shoppingplatform.util.CookieUtil;
 import jakarta.validation.Valid;

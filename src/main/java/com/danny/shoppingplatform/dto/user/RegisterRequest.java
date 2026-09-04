@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.dto.member;
+package com.danny.shoppingplatform.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

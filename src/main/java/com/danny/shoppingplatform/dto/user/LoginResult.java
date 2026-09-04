@@ -1,4 +1,4 @@
-package com.danny.shoppingplatform.dto.member;
+package com.danny.shoppingplatform.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
