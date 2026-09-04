@@ -12,6 +12,7 @@ import com.danny.shoppingplatform.util.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -79,7 +82,7 @@ public class UserService implements UserDetailsService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         UserInfo userInfo = UserInfo.fromEntity(userDetails.getUser());
 
-        String token = jwtUtil.generateToken(userDetails.getUser());
+        String token = jwtUtil.generateToken(userDetails.getUser(), "MEMBER");
 
         return LoginResult.builder()
                 .userInfo(userInfo)
@@ -97,11 +100,33 @@ public class UserService implements UserDetailsService {
             vendor.setUser(user);
             Vendor savedVendor = vendorRepository.save(vendor);
 
+            log.info("Account '{}' add VENDOR role successfully", account);
+
             JsonHelper.logAsJson(user);
             JsonHelper.logAsJson(savedVendor);
         } else {
             log.info("This user has vendor role already");
         }
+    }
+
+    public String setRole(String role, String account) {
+        if (role == null || role.isBlank()) {
+            throw new IllegalArgumentException("Parameter 'role' should not be null or blank");
+        }
+
+        String targetRole = role.toUpperCase();
+        List<String> allowedRoles = List.of("MEMBER", "VENDOR");
+
+        if (!allowedRoles.contains(targetRole)) {
+            throw new IllegalArgumentException("Parameter '%s' role is illegal".formatted(role));
+        }
+
+        User user = getUserByAccount(account);
+        if ("VENDOR".equals(targetRole) && user.getVendor() == null) {
+            throw new AccessDeniedException("This account has no VENDOR role");
+        }
+
+        return jwtUtil.generateToken(user, role);
     }
 
     private User getUserByAccount(String account) {

@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
 import com.danny.shoppingplatform.dto.member.*;
+import com.danny.shoppingplatform.dto.user.SetRoleRequest;
 import com.danny.shoppingplatform.service.UserService;
 import com.danny.shoppingplatform.util.CookieUtil;
 import jakarta.validation.Valid;
@@ -60,5 +61,14 @@ public class UserController {
     public ResponseEntity<Void> addVendor(@CurrentAccount String account) {
         userService.addVendor(account);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/set-role")
+    public ResponseEntity<Void> setRole(@Valid @RequestBody SetRoleRequest request, @CurrentAccount String account) {
+        String newToken = userService.setRole(request.getRole(), account);
+        ResponseCookie cookie = cookieUtil.createJwtCookie(newToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
     }
 }

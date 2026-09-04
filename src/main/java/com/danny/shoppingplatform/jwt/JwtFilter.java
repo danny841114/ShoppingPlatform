@@ -18,7 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,17 +41,18 @@ public class JwtFilter extends OncePerRequestFilter {
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Claims claims = jwtUtil.extractClaims(token);
                 String account = claims.getSubject();
-                String role = claims.get("role", String.class);
-
+                String role = claims.get("currentRole", String.class);
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                log.debug("[JwtFilter] account: {}, currentRole: {}", account, role);
+
                 var authentication = new UsernamePasswordAuthenticationToken(account, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Authenticated user: {}, setting SecurityContext", account);
+                log.debug("[JwtFilter] Authenticated user: {}, setting SecurityContext", account);
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            log.error("Could not set user authentication in security context", e);
+            log.error("[JwtFilter] Could not set user authentication in security context", e);
         }
 
         filterChain.doFilter(request, response); // 執行過濾鏈

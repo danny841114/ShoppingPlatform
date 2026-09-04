@@ -28,9 +28,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/product/manage").hasRole("VENDOR")
-                        .requestMatchers("/product/add").hasRole("VENDOR")
-                        .requestMatchers("/product/modify/**").hasRole("VENDOR")
+                        .requestMatchers("/api/cart/**").hasRole("MEMBER")
+                        .requestMatchers("/api/add-vendor").hasRole("MEMBER")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
