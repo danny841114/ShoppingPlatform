@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,10 +38,18 @@ public class JwtFilter extends OncePerRequestFilter {
                     && jwtUtil.validateToken(token)
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Claims claims = jwtUtil.extractClaims(token);
+
                 String account = claims.getSubject();
-                String role = claims.get("currentRole", String.class);
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                log.debug("[JwtFilter] account: {}, currentRole: {}", account, role);
+                Long userId = claims.get("userId", Long.class);
+                Long memberId = claims.get("memberId", Long.class);
+                Long vendorId = claims.get("vendorId", Long.class);
+                List<?> roles = claims.get("roles", List.class);
+
+                String currentRole = claims.get("currentRole", String.class);
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + currentRole));
+
+                log.debug("[JwtFilter] account: {}, userId: {}, memberId:{}, vendorId: {}, roles: {}, currentRole: {}",
+                        account, userId, memberId, vendorId, roles, currentRole);
 
                 var authentication = new UsernamePasswordAuthenticationToken(account, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

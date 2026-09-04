@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.jwt;
 
+import com.danny.shoppingplatform.dto.user.CustomUserDetails;
 import com.danny.shoppingplatform.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -29,11 +31,43 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    public String generateToken(User user, String currentRole) {
+    public String generateTokenByUser(User user, String currentRole) {
+        Long memberId = user.getMember() != null ? user.getMember().getId() : null;
+        Long vendorId = user.getVendor() != null ? user.getVendor().getId() : null;
+
+        return generateToken(
+                user.getAccount(),
+                user.getId(),
+                memberId,
+                vendorId,
+                user.getRoles(),
+                currentRole
+        );
+    }
+
+    public String generateTokenByUserDetails(CustomUserDetails userDetails, String currentRole) {
+        return generateToken(
+                userDetails.getUsername(),
+                userDetails.getUserId(),
+                userDetails.getMemberId(),
+                userDetails.getVendorId(),
+                userDetails.getRoles(),
+                currentRole
+        );
+    }
+
+    private String generateToken(String account,
+                                 Long userId,
+                                 Long memberId,
+                                 Long vendorId,
+                                 List<String> roles,
+                                 String currentRole) {
         return Jwts.builder()
-                .setSubject(user.getAccount())
-                .claim("userId", user.getId())
-                .claim("roles", user.getRoles())
+                .setSubject(account)
+                .claim("userId", userId)
+                .claim("memberId", memberId)
+                .claim("vendorId", vendorId)
+                .claim("roles", roles)
                 .claim("currentRole", currentRole)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

@@ -1,6 +1,7 @@
 package com.danny.shoppingplatform.service;
 
 import com.danny.shoppingplatform.dto.member.*;
+import com.danny.shoppingplatform.dto.user.CustomUserDetails;
 import com.danny.shoppingplatform.jwt.JwtUtil;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.User;
@@ -28,6 +29,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 @Service
 public class UserService implements UserDetailsService {
+    private final static List<String> ALLOWED_ROLES = List.of("MEMBER", "VENDOR");
+
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
@@ -49,7 +52,17 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByAccount(username);
-        return new UserDetailsImpl(user);
+        Long memberId = user.getMember() != null ? user.getMember().getId() : null;
+        Long vendorId = user.getVendor() != null ? user.getVendor().getId() : null;
+
+        return new CustomUserDetails(
+                username,
+                user.getPassword(),
+                user.getId(),
+                memberId,
+                vendorId,
+                user.getRoles()
+        );
     }
 
     public UserInfo fetchMe(String account) {
@@ -79,10 +92,11 @@ public class UserService implements UserDetailsService {
     public LoginResult login(LoginRequest request) {
         Authentication authenticationToken = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UserInfo userInfo = UserInfo.fromEntity(userDetails.getUser());
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String token = jwtUtil.generateToken(userDetails.getUser(), "MEMBER");
+        UserInfo userInfo = UserInfo.fromEntity(userDetails);
+
+        String token = jwtUtil.generateTokenByUserDetails(userDetails, "MEMBER");
 
         return LoginResult.builder()
                 .userInfo(userInfo)
@@ -115,9 +129,8 @@ public class UserService implements UserDetailsService {
         }
 
         String targetRole = role.toUpperCase();
-        List<String> allowedRoles = List.of("MEMBER", "VENDOR");
 
-        if (!allowedRoles.contains(targetRole)) {
+        if (!ALLOWED_ROLES.contains(targetRole)) {
             throw new IllegalArgumentException("Parameter '%s' role is illegal".formatted(role));
         }
 
@@ -126,7 +139,7 @@ public class UserService implements UserDetailsService {
             throw new AccessDeniedException("This account has no VENDOR role");
         }
 
-        return jwtUtil.generateToken(user, role);
+        return jwtUtil.generateTokenByUser(user, role);
     }
 
     private User getUserByAccount(String account) {
