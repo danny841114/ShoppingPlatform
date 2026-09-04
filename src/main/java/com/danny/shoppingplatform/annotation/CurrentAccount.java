@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@AuthenticationPrincipal
+@AuthenticationPrincipal(expression = "#this instanceof T(java.lang.String) ? #this : username")
 public @interface CurrentAccount {
 }

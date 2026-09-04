@@ -18,13 +18,13 @@ public class CustomUserDetails implements UserDetails {
     private final Long vendorId;
     private final List<String> roles;
 
-    public CustomUserDetails(String username,
+    public CustomUserDetails(String account,
                              String password,
                              Long userId,
                              Long memberId,
                              Long vendorId,
                              List<String> roles) {
-        this.username = username;
+        this.username = account;
         this.password = password;
         this.userId = userId;
         this.memberId = memberId;
@@ -32,27 +32,17 @@ public class CustomUserDetails implements UserDetails {
         this.roles = roles;
     }
 
-    public CustomUserDetails(String username,
+    public CustomUserDetails(String account,
                              Long userId,
                              Long memberId,
                              Long vendorId,
                              List<String> roles) {
-        this.username = username;
+        this.username = account;
         this.password = "";
         this.userId = userId;
         this.memberId = memberId;
         this.vendorId = vendorId;
         this.roles = roles;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.danny.shoppingplatform.jwt;
 
+import com.danny.shoppingplatform.dto.user.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +20,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +46,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 Long userId = claims.get("userId", Long.class);
                 Long memberId = claims.get("memberId", Long.class);
                 Long vendorId = claims.get("vendorId", Long.class);
-                List<?> roles = claims.get("roles", List.class);
+
+                List<String> roles = extractStringList(claims, "roles");
 
                 String currentRole = claims.get("currentRole", String.class);
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + currentRole));
@@ -51,7 +55,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 log.debug("[JwtFilter] account: {}, userId: {}, memberId:{}, vendorId: {}, roles: {}, currentRole: {}",
                         account, userId, memberId, vendorId, roles, currentRole);
 
-                var authentication = new UsernamePasswordAuthenticationToken(account, null, authorities);
+                CustomUserDetails customUserDetails = new CustomUserDetails(
+                        account, userId, memberId, vendorId, roles
+                );
+
+                var authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("[JwtFilter] Authenticated user: {}, setting SecurityContext", account);
@@ -80,5 +88,18 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         return null;
+    }
+
+    public static List<String> extractStringList(Claims claims, String claimName) {
+        Object rolesObject = claims.get(claimName);
+
+        return Optional.ofNullable(rolesObject)
+                .filter(List.class::isInstance)
+                .map(obj -> (List<?>) obj)
+                .stream()
+                .flatMap(List::stream)
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .collect(Collectors.toList());
     }
 }

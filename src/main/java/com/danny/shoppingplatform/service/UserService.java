@@ -48,6 +48,12 @@ public class UserService implements UserDetailsService {
         this.vendorRepository = vendorRepository;
     }
 
+    /**
+     * Verify account identity
+     *
+     * @param username account from User table
+     * @return UserDetails to verify identity
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByAccount(username);
@@ -55,12 +61,7 @@ public class UserService implements UserDetailsService {
         Long vendorId = user.getVendor() != null ? user.getVendor().getId() : null;
 
         return new CustomUserDetails(
-                username,
-                user.getPassword(),
-                user.getId(),
-                memberId,
-                vendorId,
-                user.getRoles()
+                username, user.getPassword(), user.getId(), memberId, vendorId, user.getRoles()
         );
     }
 
