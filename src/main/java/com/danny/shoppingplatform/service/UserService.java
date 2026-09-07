@@ -28,8 +28,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 @Service
 public class UserService implements UserDetailsService {
-    private final static List<String> ALLOWED_ROLES = List.of("MEMBER", "VENDOR");
-
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
@@ -129,12 +127,12 @@ public class UserService implements UserDetailsService {
         }
 
         String targetRole = role.toUpperCase();
+        User user = getUserByAccount(account);
 
-        if (!ALLOWED_ROLES.contains(targetRole)) {
+        if (!user.getRoles().contains(targetRole)) {
             throw new IllegalArgumentException("Parameter '%s' role is illegal".formatted(role));
         }
 
-        User user = getUserByAccount(account);
         if ("VENDOR".equals(targetRole) && user.getVendor() == null) {
             throw new AccessDeniedException("This account has no VENDOR role");
         }

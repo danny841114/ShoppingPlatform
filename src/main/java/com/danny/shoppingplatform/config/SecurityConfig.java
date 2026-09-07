@@ -4,6 +4,7 @@ import com.danny.shoppingplatform.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -28,9 +29,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/cart/**").hasRole("MEMBER")
-                        .requestMatchers("/api/add-vendor").hasRole("MEMBER")
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register").anonymous()
+                        .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/member/**").hasRole("MEMBER")
+                        .requestMatchers("/api/vendor/**").hasRole("VENDOR")
+                        .requestMatchers("/api/users/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
