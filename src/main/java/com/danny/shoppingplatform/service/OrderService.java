@@ -101,28 +101,14 @@ public class OrderService {
         return OrderDto.fromEntity(savedOrder);
     }
 
-    public List<OrderDto> getOrders(Long memberId, Long vendorId, String account) {
-        if (memberId != null && vendorId != null) {
-            throw new IllegalArgumentException("Cannot specify both memberId and vendorId at the same time");
-        }
-
+    public List<OrderDto> getOrdersByMember(String account) {
         User user = userRepository.findByAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("User with account '%s' not found".formatted(account)));
 
-        List<Order> orders;
-        if (memberId != null) {
-            if (!memberId.equals(user.getMember().getId())) {
-                throw new AccessDeniedException("No privilege to get order list");
-            }
-            orders = orderRepository.findByMemberId(memberId);
-        } else if (vendorId != null) {
-            if (!vendorId.equals(user.getVendor().getId())) {
-                throw new AccessDeniedException("No privilege to get order list");
-            }
-            orders = orderRepository.findByVendorId(vendorId);
-        } else {
-            throw new IllegalArgumentException("Both memberId and vendorId are null");
-        }
+        Member member = user.getMember();
+        if (member == null) throw new AccessDeniedException("User is not registered as a member");
+
+        List<Order> orders = orderRepository.findByMemberId(member.getId());
 
         return orders.stream()
                 .map(OrderDto::fromEntity)

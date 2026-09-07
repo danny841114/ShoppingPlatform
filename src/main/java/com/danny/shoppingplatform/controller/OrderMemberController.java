@@ -26,10 +26,8 @@ public class OrderMemberController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getOrders(@RequestParam(required = false) Long memberId,
-                                                    @RequestParam(required = false) Long vendorId,
-                                                    @CurrentAccount String account) {
-        List<OrderDto> orders = orderService.getOrders(memberId, vendorId, account);
+    public ResponseEntity<List<OrderDto>> getOrders(@CurrentAccount String account) {
+        List<OrderDto> orders = orderService.getOrdersByMember(account);
         return ResponseEntity.ok(orders);
     }
 }
