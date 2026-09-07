@@ -22,117 +22,56 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
     @ExceptionHandler(InternalServerException.class)
     public ResponseEntity<CustomErrorResponse> handleSystemError(InternalServerException ex) {
-        log.error("Interval server error: ", ex);
-
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("SYSTEM_ERROR")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.internalServerError().body(response);
+        log.error("Internal server error: ", ex);
+        return ResponseEntity.internalServerError()
+                .body(CustomErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "SYSTEM_ERROR", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleUncaughtError(Exception ex) {
         log.error("Unknown Server Error", ex);
-
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("UNKNOWN_SERVER_ERROR")
-                .message("Unknown server error")
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.internalServerError().body(response);
+        return ResponseEntity.internalServerError()
+                .body(CustomErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "UNKNOWN_SERVER_ERROR", "Unknown server error"));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CustomErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("INVALID_PARAMETER")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest()
+                .body(CustomErrorResponse.of(HttpStatus.BAD_REQUEST, "INVALID_PARAMETER", ex.getMessage()));
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<CustomErrorResponse> handleBadRequest(BadRequestException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("BAD_REQUEST")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest()
+                .body(CustomErrorResponse.of(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CustomErrorResponse> handleNotValidArgument(MethodArgumentNotValidException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("ARGUMENT_NOT_VALID")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.badRequest().body(response);
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .orElse("請求參數格式不符");
+
+        return ResponseEntity.badRequest()
+                .body(CustomErrorResponse.of(HttpStatus.BAD_REQUEST, "ARGUMENT_NOT_VALID", errorMessage));
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .code("RESOURCE_NOT_FOUND")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleAccountNotFound(AccountNotFoundException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .code("ACCOUNT_NOT_FOUND")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(CustomAccountNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleAccountNotFound(CustomAccountNotFoundException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .code("ACCOUNT_NOT_FOUND")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    @ExceptionHandler({EntityNotFoundException.class, AccountNotFoundException.class, CustomAccountNotFoundException.class})
+    public ResponseEntity<CustomErrorResponse> handleNotFound(Exception ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(CustomErrorResponse.of(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<CustomErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .code("BAD_CREDENTIAL")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(CustomErrorResponse.of(HttpStatus.UNAUTHORIZED, "BAD_CREDENTIAL", ex.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<CustomErrorResponse> handleAuthorization(AccessDeniedException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.FORBIDDEN.value())
-                .code("FORBIDDEN")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(CustomErrorResponse.of(HttpStatus.FORBIDDEN, "FORBIDDEN", ex.getMessage()));
     }
 }

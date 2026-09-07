@@ -2,6 +2,7 @@ package com.danny.shoppingplatform.dto.error;
 
 
 import lombok.Builder;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -12,9 +13,9 @@ public record CustomErrorResponse(
         String message,
         LocalDateTime timestamp
 ) {
-    public static CustomErrorResponse of(Integer status, String code, String message) {
+    public static CustomErrorResponse of(HttpStatus statusCode, String code, String message) {
         return CustomErrorResponse.builder()
-                .status(status)
+                .status(statusCode.value())
                 .code(code)
                 .message(message)
                 .timestamp(LocalDateTime.now())
