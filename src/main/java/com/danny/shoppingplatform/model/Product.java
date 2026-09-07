@@ -50,5 +50,5 @@ public class Product {
     @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "product")
-    private List<Cart> cartList = new ArrayList<>();
+    private List<CartItem> cartItemList = new ArrayList<>();
 }

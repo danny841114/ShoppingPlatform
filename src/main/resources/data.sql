@@ -28,7 +28,7 @@ INSERT INTO product (name, description, price, quantity, date, vendor_id, photo)
 ('人體工學記憶枕', '慢回彈材質，有效支撐頸椎健康', 1200.00, 30, CURRENT_TIMESTAMP(), 3, NULL),
 ('極簡陶瓷馬克杯', '350ml 容量，附手感木質杯墊', 320.00, 150, CURRENT_TIMESTAMP(), 3, NULL);
 
-INSERT INTO cart (member_id, product_id, quantity, created_date) VALUES
+INSERT INTO cart_item (member_id, product_id, quantity, created_date) VALUES
 (1, 1, 1, CURRENT_TIMESTAMP()),
 (1, 4, 1, CURRENT_TIMESTAMP()),
 (1, 5, 2, CURRENT_TIMESTAMP()),

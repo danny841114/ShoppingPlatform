@@ -10,10 +10,10 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-@Table(name = "cart",
+@Table(name = "cart_item",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id", "product_id"})}
 )
-public class Cart {
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -35,11 +35,11 @@ public class Cart {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public static Cart create(Member member, Product product, Integer quantity) {
-        Cart cart = new Cart();
-        cart.setMember(member);
-        cart.setProduct(product);
-        cart.setQuantity(quantity);
-        return cart;
+    public static CartItem create(Member member, Product product, Integer quantity) {
+        CartItem cartItem = new CartItem();
+        cartItem.setMember(member);
+        cartItem.setProduct(product);
+        cartItem.setQuantity(quantity);
+        return cartItem;
     }
 }

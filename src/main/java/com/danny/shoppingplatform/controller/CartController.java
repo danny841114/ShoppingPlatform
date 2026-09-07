@@ -1,9 +1,9 @@
 package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
-import com.danny.shoppingplatform.dto.cart.CartAddRequest;
-import com.danny.shoppingplatform.dto.cart.CartDto;
-import com.danny.shoppingplatform.dto.cart.CartUpdateRequest;
+import com.danny.shoppingplatform.dto.cart.AddCartItemRequest;
+import com.danny.shoppingplatform.dto.cart.CartItemDto;
+import com.danny.shoppingplatform.dto.cart.UpdateCartItemRequest;
 import com.danny.shoppingplatform.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,14 +19,14 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping
-    private ResponseEntity<List<CartDto>> getCartItems(@CurrentAccount String account) {
-        List<CartDto> cartDtos = cartService.getCartItems(account);
-        return ResponseEntity.ok(cartDtos);
+    private ResponseEntity<List<CartItemDto>> getCartItems(@CurrentAccount String account) {
+        List<CartItemDto> cartItemDtos = cartService.getCartItems(account);
+        return ResponseEntity.ok(cartItemDtos);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateCartItem(@PathVariable Long id,
-                                               @RequestBody CartUpdateRequest request,
+                                               @RequestBody UpdateCartItemRequest request,
                                                @CurrentAccount String account) {
         cartService.updateCartItem(id, request, account);
         return ResponseEntity.noContent().build();
@@ -39,9 +39,9 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<CartDto> addCartItem(@RequestBody CartAddRequest request,
-                                               @CurrentAccount String account) {
-        CartDto cartDto = cartService.addCartItem(request, account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartDto); // TODO: need to fix
+    public ResponseEntity<CartItemDto> addCartItem(@RequestBody AddCartItemRequest request,
+                                                   @CurrentAccount String account) {
+        CartItemDto cartItemDto = cartService.addCartItem(request, account);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto); // TODO: need to fix
     }
 }

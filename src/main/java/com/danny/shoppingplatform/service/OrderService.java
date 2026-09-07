@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -41,13 +40,13 @@ public class OrderService {
 
         List<Long> cartIds = request.getCartIds();
         Long memberId = member.getId();
-        List<Cart> selectedCarts = cartRepository.findByIdInAndMemberId(cartIds, memberId);
+        List<CartItem> selectedCartItems = cartRepository.findByIdInAndMemberId(cartIds, memberId);
 
         // 驗證查詢出來的筆數是否跟前端傳入的 ID 數量相符
-        if (selectedCarts.isEmpty()) {
+        if (selectedCartItems.isEmpty()) {
             throw new IllegalStateException("未找到對應的購物車商品項目");
         }
-        if (selectedCarts.size() != cartIds.size()) {
+        if (selectedCartItems.size() != cartIds.size()) {
             throw new IllegalArgumentException("包含無效或不屬於該會員的購物車項目");
         }
 
@@ -69,27 +68,27 @@ public class OrderService {
 
         BigDecimal itemSubtotal = BigDecimal.ZERO;
 
-        for (Cart cart : selectedCarts) {
-            Product product = cart.getProduct();
+        for (CartItem cartItem : selectedCartItems) {
+            Product product = cartItem.getProduct();
 
-            if (product.getQuantity() < cart.getQuantity()) {
-                String errMsg = "商品 [" + product.getName() + "] 庫存不足！當前庫存：" + product.getQuantity() + "，購買數量：" + cart.getQuantity();
+            if (product.getQuantity() < cartItem.getQuantity()) {
+                String errMsg = "商品 [" + product.getName() + "] 庫存不足！當前庫存：" + product.getQuantity() + "，購買數量：" + cartItem.getQuantity();
                 throw new IllegalStateException(errMsg);
             }
 
-            product.setQuantity(product.getQuantity() - cart.getQuantity());
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
             productRepository.save(product); // 可移除
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
             orderItem.setProductName(product.getName());
             orderItem.setPrice(product.getPrice());
-            orderItem.setQuantity(cart.getQuantity());
+            orderItem.setQuantity(cartItem.getQuantity());
 
             // 因設定 CascadeType.ALL, order 儲存時會一併儲存
             order.addOrderItem(orderItem);
 
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity()));
+            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             itemSubtotal = itemSubtotal.add(itemTotal);
         }
 

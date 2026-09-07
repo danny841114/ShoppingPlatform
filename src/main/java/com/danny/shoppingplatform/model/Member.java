@@ -43,7 +43,7 @@ public class Member {
     @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cart> cartList = new ArrayList<>();
+    private List<CartItem> cartItemList = new ArrayList<>();
 
     @JsonIgnore
     @JsonManagedReference

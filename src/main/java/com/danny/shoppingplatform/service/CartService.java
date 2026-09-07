@@ -1,9 +1,9 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dto.cart.CartAddRequest;
-import com.danny.shoppingplatform.dto.cart.CartDto;
-import com.danny.shoppingplatform.dto.cart.CartUpdateRequest;
-import com.danny.shoppingplatform.model.Cart;
+import com.danny.shoppingplatform.dto.cart.AddCartItemRequest;
+import com.danny.shoppingplatform.dto.cart.CartItemDto;
+import com.danny.shoppingplatform.dto.cart.UpdateCartItemRequest;
+import com.danny.shoppingplatform.model.CartItem;
 import com.danny.shoppingplatform.model.Member;
 import com.danny.shoppingplatform.model.Product;
 import com.danny.shoppingplatform.repository.CartRepository;
@@ -26,48 +26,48 @@ public class CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
 
-    public List<CartDto> getCartItems(String account) {
+    public List<CartItemDto> getCartItems(String account) {
         if (!memberRepository.existsByUserAccount(account)) {
             throw new UsernameNotFoundException("Member with account '%s' not found".formatted(account));
         }
 
         return cartRepository.findByMemberUserAccount(account)
                 .stream()
-                .map(CartDto::fromEntity)
+                .map(CartItemDto::fromEntity)
                 .toList();
     }
 
     @Transactional
-    public void updateCartItem(Long cartId, CartUpdateRequest request, String account) {
-        Cart cart = getCartItemById(cartId);
+    public void updateCartItem(Long cartId, UpdateCartItemRequest request, String account) {
+        CartItem cartItem = getCartItemById(cartId);
         Member member = getMemberByAccount(account);
-        if (!Objects.equals(member.getId(), cart.getMember().getId())) {
+        if (!Objects.equals(member.getId(), cartItem.getMember().getId())) {
             throw new AccessDeniedException("Cart owner and member does not match");
         }
 
-        Integer productQuantity = cart.getProduct().getQuantity();
+        Integer productQuantity = cartItem.getProduct().getQuantity();
         Integer requestQuantity = request.getQuantity();
         if (requestQuantity > productQuantity || requestQuantity < 1) {
             throw new ArithmeticException("Request quantity is illegal");
         }
 
-        cart.setQuantity(requestQuantity);
-        cartRepository.save(cart);
+        cartItem.setQuantity(requestQuantity);
+        cartRepository.save(cartItem);
     }
 
     @Transactional
     public void removeCartItem(Long cartId, String account) {
-        Cart cart = getCartItemById(cartId);
+        CartItem cartItem = getCartItemById(cartId);
         Member member = getMemberByAccount(account);
-        if (!Objects.equals(member.getId(), cart.getMember().getId())) {
+        if (!Objects.equals(member.getId(), cartItem.getMember().getId())) {
             throw new AccessDeniedException("Cart owner and member does not match");
         }
 
-        cartRepository.delete(cart);
+        cartRepository.delete(cartItem);
     }
 
     @Transactional
-    public CartDto addCartItem(CartAddRequest request, String account) {
+    public CartItemDto addCartItem(AddCartItemRequest request, String account) {
         Integer inputQuantity = request.getQuantity();
         if (inputQuantity == null || inputQuantity <= 0) {
             throw new IllegalArgumentException("Quantity must be more than 0");
@@ -79,10 +79,10 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID '%s' not found".formatted(productId)));
 
-        Cart cart = cartRepository.findByMemberAndProduct(member, product)
-                .orElseGet(() -> Cart.create(member, product, 0));
+        CartItem cartItem = cartRepository.findByMemberAndProduct(member, product)
+                .orElseGet(() -> CartItem.create(member, product, 0));
 
-        int currentQuantity = cart.getQuantity();
+        int currentQuantity = cartItem.getQuantity();
         int availableStock = product.getQuantity();
         int remainingAllowed = availableStock - currentQuantity;
 
@@ -101,13 +101,13 @@ public class CartService {
             );
         }
 
-        cart.setQuantity(currentQuantity + inputQuantity);
+        cartItem.setQuantity(currentQuantity + inputQuantity);
 
-        Cart savedItem = cartRepository.save(cart);
-        return CartDto.fromEntity(savedItem);
+        CartItem savedItem = cartRepository.save(cartItem);
+        return CartItemDto.fromEntity(savedItem);
     }
 
-    private Cart getCartItemById(Long cartId) {
+    private CartItem getCartItemById(Long cartId) {
         return cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item with ID '%s' not found".formatted(cartId)));
     }
