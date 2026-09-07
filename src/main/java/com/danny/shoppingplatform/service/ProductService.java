@@ -34,9 +34,7 @@ public class ProductService {
 
     public ProductDto getProductById(Long id) {
         Product product = getById(id);
-        Long vendorId = product.getVendor().getId();
-        String shopName = product.getVendor().getShopName();
-        return ProductDto.fromEntity(product, vendorId, shopName);
+        return ProductDto.fromEntity(product);
     }
 
     public byte[] getProductPhotoById(Integer id) {
@@ -79,11 +77,7 @@ public class ProductService {
         product.setPhoto(photoByteArray);
         Product savedProduct = productRepository.save(product);
 
-        // avoid N+1 query problem
-        Long vendorId = savedProduct.getVendor().getId();
-        String shopName = savedProduct.getVendor().getShopName();
-
-        return ProductDto.fromEntity(savedProduct, vendorId, shopName);
+        return ProductDto.fromEntity(savedProduct);
     }
 
     @Transactional
