@@ -1,8 +1,8 @@
 package com.danny.shoppingplatform.service;
 
-import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
+import com.danny.shoppingplatform.dto.product.AddProductRequest;
 import com.danny.shoppingplatform.dto.product.ProductDto;
-import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
+import com.danny.shoppingplatform.dto.product.UpdateProductRequest;
 import com.danny.shoppingplatform.dto.product.ProductPageDto;
 import com.danny.shoppingplatform.exception.custom.InternalServerException;
 import com.danny.shoppingplatform.model.Vendor;
@@ -56,11 +56,11 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDto addProduct(ProductCreateRequest request, String account) {
+    public ProductDto addProduct(AddProductRequest request, String account) {
         byte[] photoByteArray = null;
-        if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
+        if (request.photo() != null && !request.photo().isEmpty()) {
             try {
-                photoByteArray = ImageHelper.convertImageToByte(request.getPhoto());
+                photoByteArray = ImageHelper.convertImageToByte(request.photo());
             } catch (IOException e) {
                 log.error("Failed to convert image for new product by user: {}", account, e);
                 throw new InternalServerException("Upload image failed");
@@ -70,11 +70,11 @@ public class ProductService {
         Vendor vendor = getVendorByAccount(account);
 
         Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
+        product.setName(request.name());
+        product.setDescription(request.description());
         product.setVendor(vendor);
-        product.setPrice(request.getPrice());
-        product.setQuantity(request.getQuantity());
+        product.setPrice(request.price());
+        product.setQuantity(request.quantity());
         product.setDate(Instant.now());
         product.setPhoto(photoByteArray);
         Product savedProduct = productRepository.save(product);
@@ -87,26 +87,26 @@ public class ProductService {
     }
 
     @Transactional
-    public void modifyProduct(Long id, ProductModifyRequest request, String account) {
+    public void modifyProduct(Long id, UpdateProductRequest request, String account) {
         Product product = getById(id);
         Vendor vendor = getVendorByAccount(account);
         if (!vendor.getId().equals(product.getVendor().getId())) {
             throw new AuthorizationDeniedException("Product owner and current vendor does not match");
         }
 
-        if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
+        if (request.photo() != null && !request.photo().isEmpty()) {
             try {
-                byte[] photoByteArray = ImageHelper.convertImageToByte(request.getPhoto());
+                byte[] photoByteArray = ImageHelper.convertImageToByte(request.photo());
                 product.setPhoto(photoByteArray);
             } catch (IOException e) {
                 throw new InternalServerException("Upload image failed");
             }
         }
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setQuantity(request.getQuantity());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setQuantity(request.quantity());
 
         productRepository.save(product);
     }

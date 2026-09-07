@@ -1,34 +1,31 @@
 package com.danny.shoppingplatform.dto.product;
 
 import com.danny.shoppingplatform.model.Product;
-import lombok.*;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductDto {
-    private Long id;
-    private String name;
-    private Vendor vendor;
-    private String description;
-    private BigDecimal price;
-    private Integer quantity;
-    private Instant date;
-
-    @Data
+public record ProductDto(
+        Long id,
+        String name,
+        Vendor vendor,
+        String description,
+        BigDecimal price,
+        Integer quantity,
+        Instant date
+) {
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private static class Vendor {
-        private Long id;
-        private String shopName;
+    public record Vendor(
+            Long id,
+            String shopName
+    ) {
     }
 
     public static ProductDto fromEntity(Product product, Long vendorId, String shopName) {
+        if (product == null) return null;
+
         Vendor vendor = Vendor.builder()
                 .id(vendorId)
                 .shopName(shopName)
@@ -46,9 +43,14 @@ public class ProductDto {
     }
 
     public static ProductDto fromEntity(Product product) {
+        if (product == null) return null;
+
+        Long vendorId = product.getVendor() != null ? product.getVendor().getId() : null;
+        String shopName = product.getVendor() != null ? product.getVendor().getShopName() : null;
+
         Vendor vendor = Vendor.builder()
-                .id(product.getVendor().getId())
-                .shopName(product.getVendor().getShopName())
+                .id(vendorId)
+                .shopName(shopName)
                 .build();
 
         return ProductDto.builder()

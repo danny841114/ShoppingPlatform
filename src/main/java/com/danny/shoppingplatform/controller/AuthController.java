@@ -21,11 +21,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<UserInfo> login(@Valid @RequestBody LoginRequest request) {
-        LoginResult loginResult = userService.login(request);
-        ResponseCookie cookie = cookieUtil.createJwtCookie(loginResult.getToken());
+        LoginResult loginResult = userService.login(request.account(), request.password());
+        ResponseCookie cookie = cookieUtil.createJwtCookie(loginResult.token());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(loginResult.getUserInfo());
+                .body(loginResult.userInfo());
     }
 
     @PostMapping("/logout")
@@ -38,7 +38,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) throws BadRequestException {
-        userService.register(request);
+        userService.register(request.account(), request.password());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -69,10 +69,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void register(RegisterRequest request) throws BadRequestException {
-        String account = request.getAccount();
-        String password = request.getPassword();
-
+    public void register(String account, String password) throws BadRequestException {
         if (userRepository.existsByAccount(account)) {
             throw new BadRequestException("User with account '%s' already exists".formatted(account));
         }
@@ -87,8 +84,8 @@ public class UserService implements UserDetailsService {
         memberRepository.save(newMember);
     }
 
-    public LoginResult login(LoginRequest request) {
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
+    public LoginResult login(String account, String password) {
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(account, password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
@@ -96,10 +93,7 @@ public class UserService implements UserDetailsService {
 
         String token = jwtUtil.generateTokenByUserDetails(userDetails, "MEMBER");
 
-        return LoginResult.builder()
-                .userInfo(userInfo)
-                .token(token)
-                .build();
+        return LoginResult.of(userInfo, token);
     }
 
     @Transactional

@@ -1,88 +1,86 @@
 package com.danny.shoppingplatform.dto.order;
 
 import com.danny.shoppingplatform.model.Order;
-import lombok.*;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderDto {
-    private Long id;
-    private String orderNumber;
-    private BigDecimal totalAmount;
-    private BigDecimal shippingFee;
-    private String status;
-    private String receiverName;
-    private String receiverPhone;
-    private String receiverEmail;
-    private String receiverAddress;
-    private String paymentMethod;
-    private String note;
-    private Instant createdDate;
-    private MemberDetail member;
-    private VendorDetail vendor;
-    private List<OrderItem> items;
-
-    @Getter
-    @Setter
+public record OrderDto(
+        Long id,
+        String orderNumber,
+        BigDecimal totalAmount,
+        BigDecimal shippingFee,
+        String status,
+        String receiverName,
+        String receiverPhone,
+        String receiverEmail,
+        String receiverAddress,
+        String paymentMethod,
+        String note,
+        Instant createdDate,
+        MemberDetail member,
+        VendorDetail vendor,
+        List<OrderItem> items
+) {
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class MemberDetail {
-        private Long id;
-        private String account;
+    public record MemberDetail(
+            Long id,
+            String account
+    ) {
     }
 
-    @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class VendorDetail {
-        private Long id;
-        private String shopName;
+    public record VendorDetail(
+            Long id,
+            String shopName
+    ) {
     }
 
-    @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class OrderItem {
-        private Long productId;
-        private String productName;
-        private BigDecimal price;
-        private Integer quantity;
+    public record OrderItem(
+            Long productId,
+            String productName,
+            BigDecimal price,
+            Integer quantity
+    ) {
     }
 
     public static OrderDto fromEntity(Order order) {
-        List<OrderItem> items = order.getOrderItemList()
-                .stream()
+        if (order == null) return null;
+
+        List<OrderItem> items = (order.getOrderItemList() == null)
+                ? Collections.emptyList()
+                : order.getOrderItemList().stream()
                 .map(item -> OrderItem.builder()
-                        .productId(item.getProduct().getId())
-                        .productName(item.getProduct().getName())
+                        .productId(item.getProduct() != null ? item.getProduct().getId() : null)
+                        .productName(item.getProduct() != null ? item.getProduct().getName() : null)
                         .price(item.getPrice())
                         .quantity(item.getQuantity())
-                        .build()
-                )
-                .collect(Collectors.toList());
+                        .build())
+                .toList();
 
-        MemberDetail member = MemberDetail.builder()
-                .id(order.getMember().getId())
-                .account(order.getMember().getUser().getAccount())
-                .build();
+        MemberDetail member = null;
+        if (order.getMember() != null) {
+            String account = order.getMember().getUser() != null
+                    ? order.getMember().getUser().getAccount()
+                    : null;
+            member = MemberDetail.builder()
+                    .id(order.getMember().getId())
+                    .account(account)
+                    .build();
+        }
 
-        VendorDetail vendor = VendorDetail.builder()
-                .id(order.getVendor().getId())
-                .shopName(order.getVendor().getShopName())
-                .build();
+        VendorDetail vendor = null;
+        if (order.getVendor() != null) {
+            vendor = VendorDetail.builder()
+                    .id(order.getVendor().getId())
+                    .shopName(order.getVendor().getShopName())
+                    .build();
+        }
 
         return OrderDto.builder()
                 .id(order.getId())

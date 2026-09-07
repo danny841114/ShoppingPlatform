@@ -1,25 +1,21 @@
 package com.danny.shoppingplatform.dto.user;
 
 import com.danny.shoppingplatform.model.User;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserInfo {
-    private String account;
-    private Long userId;
-    private Long memberId;
-    private Long vendorId;
-    private List<String> roles;
-
+public record UserInfo(
+        String account,
+        Long userId,
+        Long memberId,
+        Long vendorId,
+        List<String> roles
+) {
     public static UserInfo fromEntity(User user) {
+        if (user == null) return null;
+
         Long memberId = user.getMember() != null ? user.getMember().getId() : null;
         Long vendorId = user.getVendor() != null ? user.getVendor().getId() : null;
 
@@ -33,6 +29,8 @@ public class UserInfo {
     }
 
     public static UserInfo fromEntity(CustomUserDetails userDetails) {
+        if (userDetails == null) return null;
+
         return UserInfo.builder()
                 .account(userDetails.getUsername())
                 .userId(userDetails.getUserId())

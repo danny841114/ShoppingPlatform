@@ -1,15 +1,16 @@
 package com.danny.shoppingplatform.dto.user;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginResult {
-    private UserInfo userInfo;
-    private String token;
+public record LoginResult(
+        UserInfo userInfo,
+        String token
+) {
+    public static LoginResult of(UserInfo userInfo, String token) {
+        return LoginResult.builder()
+                .userInfo(userInfo)
+                .token(token)
+                .build();
+    }
 }

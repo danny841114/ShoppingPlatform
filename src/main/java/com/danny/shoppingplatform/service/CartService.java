@@ -46,7 +46,7 @@ public class CartService {
         }
 
         Integer productQuantity = cartItem.getProduct().getQuantity();
-        Integer requestQuantity = request.getQuantity();
+        Integer requestQuantity = request.quantity();
         if (requestQuantity > productQuantity || requestQuantity < 1) {
             throw new ArithmeticException("Request quantity is illegal");
         }
@@ -68,14 +68,14 @@ public class CartService {
 
     @Transactional
     public CartItemDto addCartItem(AddCartItemRequest request, String account) {
-        Integer inputQuantity = request.getQuantity();
+        Integer inputQuantity = request.quantity();
         if (inputQuantity == null || inputQuantity <= 0) {
             throw new IllegalArgumentException("Quantity must be more than 0");
         }
 
         Member member = getMemberByAccount(account);
 
-        Long productId = request.getProductId();
+        Long productId = request.productId();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID '%s' not found".formatted(productId)));
 

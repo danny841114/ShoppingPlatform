@@ -6,19 +6,15 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductPageDto {
-    private List<ProductDto> products;
-    private Integer totalPages;
-    private Long totalElements;
-    private Integer page;
-    private Integer size;
-    private String keyword;
-
+public record ProductPageDto(
+        List<ProductDto> products,
+        Integer totalPages,
+        Long totalElements,
+        Integer page,
+        Integer size,
+        String keyword
+) {
     public static ProductPageDto fromEntity(Page<Product> productPage) {
         if (productPage == null) return null;
 

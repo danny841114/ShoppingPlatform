@@ -34,11 +34,11 @@ public class OrderService {
         Member member = memberRepository.findByUserAccount(account)
                 .orElseThrow(() -> new UsernameNotFoundException("Member with account '%s' not found".formatted(account)));
 
-        Long vendorId = request.getVendorId();
+        Long vendorId = request.vendorId();
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new EntityNotFoundException("Vendor with ID '%s' not found".formatted(vendorId)));
 
-        List<Long> cartIds = request.getCartIds();
+        List<Long> cartIds = request.cartIds();
         Long memberId = member.getId();
         List<CartItem> selectedCartItems = cartRepository.findByIdInAndMemberId(cartIds, memberId);
 
@@ -56,14 +56,14 @@ public class OrderService {
         order.setOrderNumber(NumberUtil.generateOrderNumber());
         order.setStatus("PENDING"); // 初始狀態：待付款 / 處理中
         order.setCreatedDate(Instant.now());
-        order.setReceiverName(request.getReceiverName());
-        order.setReceiverPhone(request.getReceiverPhone());
-        order.setReceiverEmail(request.getReceiverEmail());
-        order.setReceiverAddress(request.getReceiverAddress());
-        order.setPaymentMethod(request.getPaymentMethod());
-        order.setNote(request.getNote());
+        order.setReceiverName(request.receiverName());
+        order.setReceiverPhone(request.receiverPhone());
+        order.setReceiverEmail(request.receiverEmail());
+        order.setReceiverAddress(request.receiverAddress());
+        order.setPaymentMethod(request.paymentMethod());
+        order.setNote(request.note());
 
-        BigDecimal shippingFee = request.getShippingFee() != null ? request.getShippingFee() : BigDecimal.ZERO;
+        BigDecimal shippingFee = request.shippingFee() != null ? request.shippingFee() : BigDecimal.ZERO;
         order.setShippingFee(shippingFee);
 
         BigDecimal itemSubtotal = BigDecimal.ZERO;

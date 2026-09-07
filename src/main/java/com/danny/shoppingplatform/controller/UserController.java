@@ -40,7 +40,7 @@ public class UserController {
 
     @PutMapping("/me/active-role")
     public ResponseEntity<Void> setRole(@Valid @RequestBody SetRoleRequest request, @CurrentAccount String account) {
-        String newToken = userService.setRole(request.getRole(), account);
+        String newToken = userService.setRole(request.role(), account);
         ResponseCookie cookie = cookieUtil.createJwtCookie(newToken);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())

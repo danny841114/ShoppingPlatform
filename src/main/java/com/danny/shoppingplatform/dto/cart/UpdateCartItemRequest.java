@@ -1,10 +1,4 @@
 package com.danny.shoppingplatform.dto.cart;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class UpdateCartItemRequest {
-    private Integer quantity;
+public record UpdateCartItemRequest(Integer quantity) {
 }

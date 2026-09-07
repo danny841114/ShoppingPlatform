@@ -1,9 +1,9 @@
 package com.danny.shoppingplatform.controller;
 
 import com.danny.shoppingplatform.annotation.CurrentAccount;
-import com.danny.shoppingplatform.dto.product.ProductCreateRequest;
+import com.danny.shoppingplatform.dto.product.AddProductRequest;
 import com.danny.shoppingplatform.dto.product.ProductDto;
-import com.danny.shoppingplatform.dto.product.ProductModifyRequest;
+import com.danny.shoppingplatform.dto.product.UpdateProductRequest;
 import com.danny.shoppingplatform.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +28,15 @@ public class ProductVendorController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductCreateRequest request, @CurrentAccount String account) {
+    public ResponseEntity<ProductDto> addProduct(@ModelAttribute AddProductRequest request, @CurrentAccount String account) {
         ProductDto productDto = productService.addProduct(request, account);
         return ResponseEntity.status(HttpStatus.CREATED).body(productDto);  // TODO: need to fix
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> modifyProduct(@PathVariable Long id, @ModelAttribute ProductModifyRequest request, @CurrentAccount String account) {
+    public ResponseEntity<?> modifyProduct(@PathVariable Long id,
+                                           @ModelAttribute UpdateProductRequest request,
+                                           @CurrentAccount String account) {
         productService.modifyProduct(id, request, account);
         return ResponseEntity.noContent().build();
     }
