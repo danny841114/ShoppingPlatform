@@ -108,7 +108,21 @@ public class OrderService {
         Member member = user.getMember();
         if (member == null) throw new AccessDeniedException("User is not registered as a member");
 
-        List<Order> orders = orderRepository.findByMemberId(member.getId());
+        List<Order> orders = orderRepository.findByMemberIdWithDetails(member.getId());
+
+        return orders.stream()
+                .map(OrderDto::fromEntity)
+                .toList();
+    }
+
+    public List<OrderDto> getOrdersByVendor(String account) {
+        User user = userRepository.findByAccount(account)
+                .orElseThrow(() -> new UsernameNotFoundException("User with account '%s' not found".formatted(account)));
+
+        Vendor vendor = user.getVendor();
+        if (vendor == null) throw new AccessDeniedException("User is not registered as a vendor");
+
+        List<Order> orders = orderRepository.findByVendorIdWithDetails(vendor.getId());
 
         return orders.stream()
                 .map(OrderDto::fromEntity)
