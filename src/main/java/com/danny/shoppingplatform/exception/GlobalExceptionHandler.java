@@ -59,17 +59,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("RESOURCE_NOT_FOUND")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.badRequest().body(response);
-    }
-
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<CustomErrorResponse> handleBadRequest(BadRequestException ex) {
         CustomErrorResponse response = CustomErrorResponse.builder()
@@ -90,6 +79,17 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<CustomErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+        CustomErrorResponse response = CustomErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("RESOURCE_NOT_FOUND")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(AccountNotFoundException.class)

@@ -15,8 +15,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/orders")
-public class OrderController {
+@RequestMapping("/api/member/orders")
+public class OrderMemberController {
     private final OrderService orderService;
 
     @PostMapping
